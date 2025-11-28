@@ -9,7 +9,6 @@ import { Toaster } from "../ui/sonner";
 import { toast } from "sonner";
 import { fetchCart } from "@/store/cartSlice";
 import { useDispatch } from "react-redux";
-import { addToGuestCart } from "./AddtoLocalCart";
 import LoadingOverlay from "./LoadingOverlay";
 
 const Product = ({ item }) => {

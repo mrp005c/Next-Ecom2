@@ -1,17 +1,20 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SessoinWrapper from "@/components/SessoinWrapper";
 import { connection } from "next/server";
 import { ThemeProvider } from "@/components/modules/themeProvider";
-import { Provider } from "react-redux";
-import { store } from "@/store/store";
 import StoreWrapper from "@/components/StoreWrapper";
-import AdminHeader from "@/components/AdminHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const poppInsfont = Poppins({
+  variable: "--font-popp-ins",
+  weight: ['400', '500', '600', '700'],
   subsets: ["latin"],
 });
 
@@ -31,7 +34,7 @@ export default async function RootLayout({ children }) {
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <SessoinWrapper>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen scroll-smooth`}
+          className={`${geistSans.variable} ${geistMono.variable} ${poppInsfont.variable} ${poppInsfont.className} antialiased flex flex-col min-h-screen scroll-smooth`}
         >
           <StoreWrapper>
             <ThemeProvider>

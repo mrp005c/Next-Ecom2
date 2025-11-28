@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -53,9 +53,9 @@ const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [formData, setFormData] = useState({ image: [""] });
-  const [edit, setEdit] = useState(false);
+  
   const [isloading, setIsloading] = useState(false);
-  const { items, loading, error } = useSelector((state) => state.products);
+  const { items, loading } = useSelector((state) => state.products);
   // Messages tab
   const [messages, setMessages] = useState([]);
   const [unreadMessage, setUnreadMessage] = useState();
@@ -68,6 +68,13 @@ const AdminPage = () => {
   const [ConfirmAlertDialog, alert, confirm] = useDialog();
 
 
+  // load product
+  const loadProducts = useCallback(async () => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
+  
+
+  
   // tab change effect
   useEffect(() => {
     if (tab === "users" && users.length === 0) {
@@ -82,7 +89,14 @@ const AdminPage = () => {
     if (tab === "orders" && orders.length === 0) {
       loadOrders();
     }
-  }, [tab]);
+  }, [
+    tab,
+    items.length,
+    messages.length,
+    orders.length,
+    users.length,
+    loadProducts,
+  ]);
 
   // tab home content
   const analytics = async () => {
@@ -112,10 +126,7 @@ const AdminPage = () => {
 
   /* Product tab content
   and other handler */
-  // load product
-  const loadProducts = async () => {
-    dispatch(fetchProducts());
-  };
+  
   // form change handler
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useEffect, useMemo, useRef, useState } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/store/productSlice";
 import Product from "@/components/modules/Product";
-import SkeletonProduct from "@/components/modules/SkeletonProduct";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import styles from "./home.module.css";
@@ -24,7 +24,6 @@ export default function Home() {
   const { data: session } = useSession();
   const { items, loading, error } = useSelector((state) => state.products);
   const [homeItems, setHomeItems] = useState([]);
-  const [load, setload] = useState(false);
   const scrollRef = useRef(null);
   const [scrollInfo, setScrollInfo] = useState({
     visible: 0,

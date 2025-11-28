@@ -21,8 +21,6 @@ export async function connectDB() {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
         dbName: "Next-Ecom",
-        // useNewUrlParser: true,
-        // useUnifiedTopology: true,
       })
       .then((mongoose) => mongoose);
   }

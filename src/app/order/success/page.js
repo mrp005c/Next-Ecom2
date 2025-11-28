@@ -1,11 +1,22 @@
+import Link from 'next/link'
 import React from 'react'
+import { IoCheckmarkDoneCircleSharp } from 'react-icons/io5'
 
 const Page = () => {
   return (
-    <div>
-      Your Order Confirmed
+    <div className='flex-center w-full  h-full my-4  overflow-hidden'>
+      <div className="p-3 rounded-md bg-gray100c flex-center flex-col gap-4">
+        <h3 className='text-3xl font-bold '>Payment Successful! </h3>
+        <div className='text-6xl font-bold'><IoCheckmarkDoneCircleSharp/></div>
+        <Link className='primary-btn' href="/">Return Home</Link>
+      </div>
     </div>
   )
 }
 
 export default Page
+
+export const metadata = {
+  title: 'Payment Successful  | Next Ecom',
+  description: 'Details of this page',
+}

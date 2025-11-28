@@ -22,7 +22,7 @@ export default function SignInPage() {
   const { status } = useSession();
   const router = useRouter();
   const [formData, setFormData] = useState({});
-  const [ConfirmAlertDialog, alert, confirm] = useDialog();
+  const [ConfirmAlertDialog, alert] = useDialog();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

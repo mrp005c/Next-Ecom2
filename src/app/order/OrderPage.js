@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { fetchCart } from "@/store/cartSlice";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast, Toaster } from "sonner";
 
@@ -20,12 +20,14 @@ const OrderPage = () => {
   const { data: session, status } = useSession();
   const [formData, setFormData] = useState({});
   const [ConfirmAlertDialog, alert, confirm] = useDialog();
-  const handleCartLoad = async () => {
+  
+
+  const handleCartLoad =   useCallback(async () => {
     if (session) {
       const userId = session.user.id;
       dispatch(fetchCart(userId));
     }
-  };
+  },[session, dispatch])
 
   const handleRomoveFromCart = async (newCartItem) => {
     if (!session) {
@@ -71,7 +73,7 @@ const OrderPage = () => {
 
   useEffect(() => {
     handleCartLoad();
-  }, [session]);
+  }, [session, handleCartLoad]);
 
   useEffect(() => {
     if (session && cartItems) {

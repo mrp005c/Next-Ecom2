@@ -18,5 +18,4 @@ export default function LoadingOverlay({ show = false, message }) {
   );
 }
 
-//className="fixed inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm z-[9999]">
      

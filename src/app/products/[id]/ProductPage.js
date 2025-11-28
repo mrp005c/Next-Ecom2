@@ -6,7 +6,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, useParams, usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { useDispatch } from "react-redux";
@@ -38,7 +38,7 @@ const ProductPage = ({ id }) => {
     }
   };
 
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -61,13 +61,14 @@ const ProductPage = ({ id }) => {
     } catch (error) {
       console.log(error);
     }
-  };
+  },[id]);
+
   useEffect(() => {
     const a = async () => {
       loadProduct();
     };
     a();
-  }, []);
+  }, [loadProduct]);
 
   const handleTouchStart = (e) => {
     setStartX(e.touches[0].clientX);

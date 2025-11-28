@@ -1,6 +1,6 @@
 "use client";
-import { useSession, signOut } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IoCartOutline, IoReload } from "react-icons/io5";
@@ -11,6 +11,7 @@ import { fetchCart } from "@/store/cartSlice";
 import LoadingOverlay from "@/components/modules/LoadingOverlay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OrderItem from "@/components/modules/OrderItem";
+import CartProductItem from "@/components/modules/cartProduct";
 
 const DashBoardPage = () => {
   const { data: session, status } = useSession();
@@ -26,21 +27,14 @@ const DashBoardPage = () => {
   const [deliveredOrders, setDeliveredOrders] = useState([]);
   const [isloading, setIsloading] = useState(false);
 
-  const LoadCart = (id) => {
-    dispatch(fetchCart(id));
-  };
+  const LoadCart = useCallback(
+    async (id) => {
+      dispatch(fetchCart(id));
+    },
+    [dispatch]
+  );
 
-  // tab change effect
-  useEffect(() => {
-    if (session && tab === "cart" && cartItems.length === 0) {
-      LoadCart(session.user.id);
-    }
-    if (session && tab === "orders" && orders.length === 0) {
-      loadOrders(session.user.id);
-    }
-  }, [tab]);
-
-  const loadOrders = async (id) => {
+  const loadOrders = useCallback(async (id) => {
     setIsloading(true);
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -64,6 +58,52 @@ const DashBoardPage = () => {
     } finally {
       setIsloading(false);
     }
+  }, []);
+
+  // tab change effect
+  useEffect(() => {
+    if (session && tab === "cart" && cartItems.length === 0) {
+      LoadCart(session.user.id);
+    }
+    if (session && tab === "orders" && orders.length === 0) {
+      loadOrders(session.user.id);
+    }
+  }, [tab, LoadCart, cartItems.length, orders.length, session, loadOrders]);
+
+  const handleRomoveFromCart = async (newCartItem) => {
+    if (!session) {
+      toast.info("Please Login First.");
+      router.push("/login");
+      return;
+    }
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    const userId = session.user.id;
+    const raw = JSON.stringify({
+      email: session.user.email,
+      userId: session.user.id,
+      products: newCartItem,
+    });
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+    try {
+      const add = await fetch("/api/cart", requestOptions);
+      const res = await add.json();
+      if (res.success) {
+        await LoadCart(userId);
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -82,7 +122,7 @@ const DashBoardPage = () => {
       <div className="container mx-auto p-2 ">
         <LoadingOverlay show={isloading} message={"Loading"} />
         {/* Tab links  */}
-        <div className=" flex-center gap-2 flex-wrap p-3 bg-gray200c  rounded-md">
+        <div className=" flex-center gap-2 flex-wrap p-3 bg-gray200c  border border-gray200c rounded-md">
           <button
             className={`${
               tab === "profile" || !tab ? "bg-red200c" : ""
@@ -150,11 +190,11 @@ const DashBoardPage = () => {
           </button>
         </div>
         {/* {container } */}
-        <div className="flex-1 bg-gray50c rounded-md p-2">
+        <div className="flex-1 bg-gray50c border border-gray200c rounded-md p-2">
           {/* home tab  */}
           {(tab === "profile" || !tab) && (
             <>
-              <div className="flex-between bg-violet100c p-2 rounded-md">
+              <div className="flex-between bg-violet100c p-2 border border-gray200c rounded-md">
                 <h1 className="text-2xl font-bold ">Profile</h1>
                 <Button
                   size={"icon"}
@@ -166,9 +206,35 @@ const DashBoardPage = () => {
                 </Button>
               </div>
               {session && (
-                <div className="container mx-auto p-4 flex-center gap-3 flex-wrap text-xs">
-                  {session.user.name}
-                  {session.user.email}
+                <div className="overflow-auto">
+                  <table className=" bg-gray50c rounded-xl space-y-3 w-full text-sm">
+                    <tbody>
+                      <tr className="">
+                        <td className="border px-2 font-bold">Name:</td>
+                        <td className="px-2  py-1 border border-gray200c rounded-xs box-border bg-gray100c w-full">
+                          {session.user.name}
+                        </td>
+                      </tr>
+                      <tr className="">
+                        <td className="border px-2 font-bold">Email:</td>
+                        <td className="px-2  py-1 border border-gray200c rounded-xs box-border bg-gray100c">
+                          {session.user.email}
+                        </td>
+                      </tr>
+                      <tr className="">
+                        <td className="border px-2 font-bold">Phone:</td>
+                        <td className="px-2 py-1 border border-gray200c rounded-xs box-border bg-gray100c">
+                          {session.user.phone}
+                        </td>
+                      </tr>
+                      <tr className="">
+                        <td className="border px-2 font-bold">Address:</td>
+                        <td className="px-2 py-1 border border-gray200c rounded-xs box-border bg-gray100c">
+                          {session.user.address}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               )}
             </>
@@ -177,7 +243,7 @@ const DashBoardPage = () => {
           {/* Products tab */}
           {tab === "cart" && (
             <div className="space-y-3">
-              <div className="flex-between bg-violet100c p-2 rounded-md">
+              <div className="flex-between bg-violet100c p-2 border border-gray200c rounded-md">
                 <h2 className="text-2xl font-bold ">Cart</h2>
 
                 <Button
@@ -189,14 +255,26 @@ const DashBoardPage = () => {
                   <IoReload />
                 </Button>
               </div>
-              <div>cart items</div>
+              <div className="p-2 bg-gray100c  rounded-md flex-center flex-col gap-2">
+                {cartItems && cartItems.length > 0 ? (
+                  cartItems.map((item) => (
+                    <CartProductItem
+                      key={item.cartP}
+                      item={item}
+                      handleRomoveFromCart={handleRomoveFromCart}
+                    />
+                  ))
+                ) : (
+                  <h1>No item to show!</h1>
+                )}
+              </div>
             </div>
           )}
 
           {/* Orders Tab */}
           {tab === "orders" && (
             <div>
-              <div className="flex-between bg-violet100c p-2 rounded-md">
+              <div className="flex-between bg-violet100c p-2 border border-gray200c rounded-md">
                 <h1 className="text-2xl font-bold ">Orders</h1>
                 <Button
                   size={"icon"}
@@ -251,8 +329,40 @@ const DashBoardPage = () => {
               </Tabs>
             </div>
           )}
+
+          {/* coupon tab */}
+          {tab === "coupon" && (
+            <>
+              <div className="flex-between bg-violet100c p-2 border border-gray200c rounded-md">
+                <h1 className="text-2xl font-bold ">Coupon</h1>
+                <Button
+                  size={"icon"}
+                  // onClick={analytics}
+                  variant="outline"
+                  className="font-bold text-2xl"
+                >
+                  <IoReload />
+                </Button>
+              </div>
+            </>
+          )}
+          {/* setting tab */}
+          {tab === "setting" && (
+            <>
+              <div className="flex-between bg-violet100c p-2 border border-gray200c rounded-md">
+                <h1 className="text-2xl font-bold ">Setting</h1>
+                <Button
+                  size={"icon"}
+                  // onClick={analytics}
+                  variant="outline"
+                  className="font-bold text-2xl"
+                >
+                  <IoReload />
+                </Button>
+              </div>
+            </>
+          )}
         </div>
-        <span> {session.user.id}</span>
       </div>
     );
   }

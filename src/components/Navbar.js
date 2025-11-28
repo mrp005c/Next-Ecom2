@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -40,16 +40,16 @@ const Navbar = () => {
   const { setTheme } = useTheme();
   const cartMenu = useRef(null);
 
-  const handleCartLoad = async () => {
+  const handleCartLoad = useCallback(async () => {
     if (session) {
       const userId = session.user.id;
       dispatch(fetchCart(userId));
     }
-  };
+  }, [session, dispatch]);
 
   useEffect(() => {
     handleCartLoad();
-  }, []);
+  }, [handleCartLoad]);
 
   useEffect(() => {
     cartMenu.current.classList.remove("open");
@@ -92,7 +92,6 @@ const Navbar = () => {
     }
   };
 
-  
   return (
     <header className="flex-center flex-wrap bg-gray200c box-border sticky z-40 top-0 w-full text-foreground">
       <AdminHeader />

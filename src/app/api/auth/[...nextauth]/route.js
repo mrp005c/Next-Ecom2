@@ -5,7 +5,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 
-let userid;
 const handler = NextAuth({
   // Configure one or more authentication providers
   providers: [
@@ -42,13 +41,13 @@ const handler = NextAuth({
 
         if (!user) throw new Error("User not found");
 
-        const isValid = user.password === credentials.password;
-        /* hashed pass checked
+        // const isValid = user.password === credentials.password;
+        // hashed pass checked
         const isValid = await bcrypt.compare(
           credentials.password,
           user.password
         );
-        */
+        
         if (!isValid) throw new Error("Invalid password");
 
         return {

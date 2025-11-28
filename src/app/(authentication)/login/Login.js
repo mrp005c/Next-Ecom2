@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDialog } from "@/components/modules/AlertDialog";
 import { useEffect, useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
@@ -24,7 +24,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redUrl = searchParams.get("redurl");
-  const [ConfirmAlertDialog, alert, confirm] = useDialog();
+  const [ConfirmAlertDialog, alert] = useDialog();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,7 +52,7 @@ export default function LoginPage() {
       }
       return router.push("/")
     }
-  }, [status, router]);
+  }, [status, router, redUrl]);
   if (status === "loading") {
     return <div>Loading your page</div>;
   }

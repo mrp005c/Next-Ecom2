@@ -2,8 +2,7 @@
 import Product from "@/components/modules/Product";
 import SkeletonProduct from "@/components/modules/SkeletonProduct";
 import { fetchProducts } from "@/store/productSlice";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { IoReloadCircleOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,9 +10,9 @@ const ProductPage = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.products);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     dispatch(fetchProducts());
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     const a = async () => {
@@ -22,7 +21,7 @@ const ProductPage = () => {
     if (items.length === 0) {
       a();
     }
-  }, []);
+  }, [items.length, loadProducts]);
 
   return (
     <div className=" container mx-auto">

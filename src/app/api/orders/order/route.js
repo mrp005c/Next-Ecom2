@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import { NextResponse } from "next/server";
@@ -28,7 +27,6 @@ export async function GET(request) {
 
 //Post Your Data
 export async function POST(request) {
-  //   const { searchParams } = new URL(request.url);
   await connectDB();
   const body = await request.json();
 

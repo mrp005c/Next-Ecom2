@@ -1,13 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
 // Update your data
 export async function PUT(request) {
-  const { searchParams } = new URL(request.url);
-  // const id = searchParams.get("id");
+ 
   const body = await request.json();
   const id = body.id;
   delete body.id;

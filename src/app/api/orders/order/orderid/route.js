@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import { NextResponse } from "next/server";
@@ -17,7 +16,7 @@ export async function GET(request) {
       message: "Orders Not Found!",
     });
   }
-  console.log(doc);
+  
   return NextResponse.json({
     success: true,
     error: false,

@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Message from "@/models/Message";
 import User from "@/models/User";
@@ -7,8 +6,8 @@ import Order from "@/models/Order";
 import { NextResponse } from "next/server";
 
 //Get Your Data
-export async function GET(request) {
-  //   const { searchParams } = new URL(request.url);
+export async function GET() {
+  
   await connectDB();
   const readMessageCount = await Message.countDocuments({ readStatus: true });
   const unreadMessageCount = await Message.countDocuments({
@@ -31,56 +30,3 @@ export async function GET(request) {
     },
   });
 }
-
-/* 
-//Post Your Data
-export async function POST(request) {
-//   const { searchParams } = new URL(request.url);
-  await connectDB();
-  const body = await request.json();
-
-  // insert doc
-  const result = await Message.insertOne(body);
-
-  return NextResponse.json({
-    success: true,
-    error: false,
-    message: "Message Sent Successful. Thank You for Contact Us!",
-    // result: result,
-  });
-}
-//Post Your Data
-export async function PUT(request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id")
-  await connectDB();
-  const body = await request.json();
-
-  // insert doc
-  const result = await Message.findByIdAndUpdate(id,body);
-
-  return NextResponse.json({
-    success: true,
-    error: false,
-    message: "Message Updated Successful!",
-    // result: result,
-  });
-}
-//Post Your Data
-export async function DELETE(request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id")
-  await connectDB();
-
-  // Delete doc
-  const result = await Message.findByIdAndDelete(id);
-
-  return NextResponse.json({
-    success: true,
-    error: false,
-    message: "Message Deleted Successful",
-    // result: result,
-  });
-}
-
-*/
