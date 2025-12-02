@@ -1,14 +1,6 @@
 import mongoose from "mongoose";
-const bilingSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String },
-  phone: {
-    type: String,
-    min: [11, "Must be at least 11, got {VALUE}"],
-    max: 14,
-  },
-  address: { type: String },
-});
+
+
 const userSchema = new mongoose.Schema(
   {
     name: String,

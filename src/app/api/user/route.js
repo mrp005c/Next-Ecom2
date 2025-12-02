@@ -2,13 +2,14 @@ import mongoose from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 
 //Post Your Data
 export async function POST(request) {
   await connectDB();
   const body = await request.json();
   const doc = await User.findOne({ email: body.email });
-  
+
   if (doc) {
     return NextResponse.json({
       success: false,
@@ -17,9 +18,26 @@ export async function POST(request) {
     });
   }
 
+  const { password, ...rest } = body;
+
+  let updatedBody = body;
+
+  if (password && password.length > 0) {
+    // hash the password (saltRounds = 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    updatedBody = {
+      ...rest,
+      password: hashedPassword,
+    };
+  }
+
+  // updated body
+
+  console.log("Updated body:", updatedBody);
+
   // insert doc
-  
-  const result = await User.insertOne(body);
+  const result = await User.insertOne(updatedBody);
 
   return NextResponse.json({
     success: true,
@@ -33,7 +51,26 @@ export async function POST(request) {
 export async function PUT(request) {
   await connectDB();
   const body = await request.json();
-  const result = await User.updateOne({ email: body.email }, body);
+
+  const { password, ...rest } = body;
+
+  let updatedBody = body;
+
+  if (password && password.length > 0) {
+    // hash the password (saltRounds = 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    updatedBody = {
+      ...rest,
+      password: hashedPassword,
+    };
+  }
+
+  // updated body
+
+  console.log("Updated body:", updatedBody);
+
+  const result = await User.updateOne({ email: updatedBody.email }, updatedBody);
 
   return NextResponse.json({
     success: true,
@@ -43,12 +80,11 @@ export async function PUT(request) {
   });
 }
 
-
 //Get Your Data
 export async function GET(request) {
   await connectDB();
   const doc = await User.find();
-  
+
   if (!doc) {
     return NextResponse.json({
       success: false,

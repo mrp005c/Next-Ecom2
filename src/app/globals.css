@@ -27,6 +27,11 @@
   --violet100c: #efbfef;
   --violet200c: #e8a9e8;
   --violet300c: #e18ce1;
+  --green500c: #12ba12;
+  --purple500c: #c717c7;
+  --pink500c: #ebcdd2;
+  --blue500c: #4c4cea;
+  --cyan500c: #64f3f3;
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -85,6 +90,13 @@
   --color-violet100c: var(--violet100c);
   --color-violet200c: var(--violet200c);
   --color-violet300c: var(--violet300c);
+  --color-purple500c: var(--purple500c);
+  --color-pink500c: var(--pink500c);
+  --color-blue500c: var(--blue500c);
+  --color-cyan500c: var(--cyan500c);
+  --color-green500c: var(--green500c);
+
+
   --color-bluebtn: var(--bluebtn);
   --color-bluebtn-hover: var(--bluebtnhover);
   --color-bluebtn-active: var(--bluebtnactive);
@@ -145,7 +157,7 @@ html {
 }
 
 @utility primary-btn {
-  @apply text-center px-3 py-2 rounded-2xl bg-purple-600 text-background hover:bg-blue-400 active:bg-blue-600 transition-all;
+  @apply text-center px-3 py-2 rounded-2xl bg-purple-600 text-white hover:bg-blue-400 active:bg-blue-600 transition-all;
 }
 @utility sec-btn {
   @apply px-5 py-3 rounded-md ring-2 ring-gray600c font-bold bg-gray50c hover:bg-red300c active:bg-gray300c flex-center flex-col;
@@ -172,6 +184,13 @@ html {
   --violet100c: #630f63;
   --violet200c: #821f82;
   --violet300c: #b212b2;
+
+   --green500c: #0c850c;
+   --purple500c: #920a92;
+  --pink500c: #c08e97;
+  --blue500c: #3b3bad;
+  --cyan500c: #49a9a9;
+  
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);

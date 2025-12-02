@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import bcrypt from "bcrypt";
 
 const handler = NextAuth({
   // Configure one or more authentication providers
@@ -47,7 +48,7 @@ const handler = NextAuth({
           credentials.password,
           user.password
         );
-        
+
         if (!isValid) throw new Error("Invalid password");
 
         return {
@@ -64,11 +65,6 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        if (user.email === process.env.ADMIN_EMAIL) {
-          user.id = process.env.ADMIN_PASS;
-          user.role = "admin";
-          return true;
-        }
         await connectDB();
         let existingUser = await User.findOne({ email: user.email });
 
@@ -79,7 +75,7 @@ const handler = NextAuth({
             email: user.email,
             image: user.image || "",
             password: null,
-            // don't store insecure default password in prod; better set null or random string
+            role: user.email === process.env.ADMIN_EMAIL ? "admin" : "user", // don't store insecure default password in prod; better set null or random string
           });
         }
 
@@ -89,6 +85,12 @@ const handler = NextAuth({
         user.phone = existingUser.phone;
         user.address = existingUser.address;
 
+        if (user.email === process.env.ADMIN_EMAIL) {
+          user.id = process.env.ADMIN_PASS;
+          user.role = "admin";
+          // return true;
+        }
+
         return true;
       } catch (err) {
         console.error("signIn callback error:", err);
@@ -96,20 +98,26 @@ const handler = NextAuth({
       }
     },
 
-    async jwt({ token, user, trigger }) {
-      if (trigger === "update" && session?.user) {
-        token.name = session.user.name;
-        token.image = session.user.image;
-        token.phone = session.user.phone;
-        token.address = session.user.address;
-      }
+
+    async jwt({ token, user, trigger, session }) {
+      // On login, attach user data
       if (user) {
         token.role = user.role;
         token.id = user.id;
         token.image = user.image;
         token.phone = user.phone;
         token.address = user.address;
+        token.name = user.name;
       }
+
+      // When calling update()
+      if (trigger === "update" && session) {
+        token.name = session.name;
+        token.image = session.image;
+        token.phone = session.phone;
+        token.address = session.address;
+      }
+
       return token;
     },
 

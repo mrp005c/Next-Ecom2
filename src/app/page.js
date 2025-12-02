@@ -136,7 +136,7 @@ export default function Home() {
       {/* Hero Section  */}
       <section
         id=" "
-        className="flex-center min-h-[calc(100vh-40px)]  bg-gray400c bg-linear-65 from-purple-500 to-pink-500"
+        className="flex-center min-h-[calc(100vh-40px)]  bg-gray400c bg-linear-65 from-purple500c to-pink500c"
       >
         <div className="min-h-[600px] py-4 flex-center items-stretch gap-2 flex-col md:flex-row w-screen container mx-auto">
           {/* right side */}
@@ -162,7 +162,7 @@ export default function Home() {
                 id="subemail"
                 onChange={(e) => setEmail(e.target.value)}
                 value={email || ""}
-                className=" bg-gray300c placeholder:text-gray50c0 "
+                className="bg-gray200c dark:bg-gray300c dark:placeholder:text-gray-50"
                 placeholder="Enter Email"
                 required
               />
@@ -190,7 +190,7 @@ export default function Home() {
       {/* about section  */}
       <section
         id="about-us"
-        className="min-h-[500px] pt-16 py-4 bg-gray700c bg-linear-65 from-red500c to-blue-500"
+        className="min-h-[500px] pt-16 py-4 bg-gray700c bg-linear-65 from-red500c to-blue500c"
       >
         <div className="flex-center items-stretch flex-col md:flex-row">
           {/* left side */}
@@ -226,19 +226,19 @@ export default function Home() {
       {/* Contact section  */}
       <section
         id="contact"
-        className="min-h-[500px] pt-16 bg-background bg-linear-65 from-cyan-400 to-pink-500"
+        className="min-h-[500px] pt-16 bg-background bg-linear-65 from-cyan500c to-pink500c"
       >
         <h2 className="w-fit mx-auto py-3 text-2xl font-bold">Contact Us</h2>
 
         <div className="flex-center items-stretch flex-col md:flex-row relative ">
           {/* left side */}{" "}
-          <div className="left flex-center flex-1 min-h-[500px] w-full max-w-[550px] relative p-3">
+          <div className="left flex-center h-full flex-1 min-h-[500px] w-full max-w-[550px] bg-gray200c relative p-3">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14533.228807213362!2d88.96267738897703!3d24.405392899359143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39fc115ab462286b%3A0xe61e93f095bf7093!2sNatore%20Station%20Bypass!5e0!3m2!1sen!2sbd!4v1761743426306!5m2!1sen!2sbd"
-              className="w-full min-h-[500px] mx-auto h-full rounded-md border-2 border-gray500c"
+              className="w-full min-h-[500px] mx-auto h-full rounded-md border-2 bg-gray-200 border-gray500c"
               loading="lazy"
             ></iframe>
-            <div className=" font-bold p-3 flex flex-col absolute z-20 bottom-5 ring ring-fuchsia-400 bg-gray100c rounded-md">
+            <div className=" font-bold p-3 flex flex-col absolute z-20 bottom-5 ring ring-fuchsia-400 bg-gray200c rounded-md">
               <span>
                 <a href="tel:+09222333444">Phone : +09222333444</a>
               </span>
@@ -247,13 +247,13 @@ export default function Home() {
               </span>
             </div>
           </div>
-          <div className="left w-full flex-1  max-w-[700px] flex justify-center flex-col gap-4 p-3">
+          <div className="left w-full flex-1 h-full min-h-[500px] max-w-[700px] flex justify-start flex-col gap-4 p-3">
             <h1 className="text-3xl font-bold text-shadow-lg text-shadow-blue-400">
               Contact Us
             </h1>
             <form
               onSubmit={handleSendMessage}
-              className="flex flex-col bg-gray200c rounded-md border-2 border-gray400c p-3"
+              className="flex flex-1 flex-col gap-3 bg-gray100c rounded-md border-2 border-gray400c p-3"
             >
               <h3 className="text-lg font-semibold">Leave A Message Here!</h3>
               <div className="grid grid-cols-1 space-y-2">
@@ -263,7 +263,7 @@ export default function Home() {
                   type="text"
                   name="name"
                   id="name"
-                  className={"rounded-md p-2  bg-gray100c"}
+                  className={"rounded-md p-2  bg-gray50c"}
                   required
                 />
               </div>
@@ -274,7 +274,7 @@ export default function Home() {
                   type="email"
                   name="email"
                   id="email"
-                  className={"rounded-md p-2  bg-gray100c"}
+                  className={"rounded-md p-2  bg-gray50c"}
                   required
                 />
               </div>
@@ -284,7 +284,7 @@ export default function Home() {
                   placeholder="Write a message..."
                   name="message"
                   id="message"
-                  className={"bg-gray100c h-[100px] p-2 "}
+                  className={"bg-gray50c h-[100px] p-2 "}
                   required
                 />
               </div>
@@ -296,10 +296,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* about section  */}
+      {/* Product section  */}
       <section
         id="services"
-        className="min-h-[500px] p-4 pt-16 bg-gray700c bg-linear-65 from-green-500 to-blue-500 flex-col relative"
+        className="min-h-[500px] p-4 pt-16 bg-gray700c bg-linear-65 from-green500c to-blue500c flex-col relative"
       >
         <h2 className="w-fit mx-auto py-3 text-2xl font-bold">
           Recently Added Products

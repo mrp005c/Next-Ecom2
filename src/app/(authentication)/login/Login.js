@@ -17,31 +17,46 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDialog } from "@/components/modules/AlertDialog";
 import { useEffect, useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
+import { useForm } from "react-hook-form";
+import LoadingOverlay from "@/components/modules/LoadingOverlay";
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
-  const [formData, setFormData] = useState({});
   const router = useRouter();
   const searchParams = useSearchParams();
   const redUrl = searchParams.get("redurl");
   const [ConfirmAlertDialog, alert] = useDialog();
+  const {
+      register,
+      handleSubmit,
+      setError,
+      setFocus,
+      formState: { errors },
+    } = useForm();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmitLg = async (data) => {
+    console.log(data)
+    
     const res = await signIn("credentials", {
       redirect: false,
-      email: formData.email,
-      password: formData.password,
+      email: data.email,
+      password: data.password,
     });
 
     if (!res.error) {
       router.push(`${decodeURI(redUrl)}`); // auto redirect, admin will be redirected later
     } else {
-      alert({title: res.error});
+      if (res.error == 'Invalid password') {
+        setError('password', {message: res.error})
+        setFocus('password')
+      }
+      if (res.error == 'User not found') {
+        setError('email', {message: res.error})
+        setFocus('email')
+      }
+      
+      console.log(res)
+      // alert({ title: res.error , description: "Try with another!"});
     }
   };
 
@@ -50,17 +65,18 @@ export default function LoginPage() {
       if (redUrl) {
         return router.push(`${decodeURI(redUrl)}`);
       }
-      return router.push("/")
+      return router.push("/");
     }
   }, [status, router, redUrl]);
+
   if (status === "loading") {
-    return <div>Loading your page</div>;
+    return <LoadingOverlay show={true} message={'Loading...'}/>;
   }
   return (
-    <div className="flex-center p-2 md:p-4">
+    <div className="flex-center p-4">
       {ConfirmAlertDialog}
       {/* <input type="email" name="" id="" /> */}
-      <Card className="w-full max-w-sm bg-gray100c">
+      <Card className="w-full max-w-md bg-gray100c">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
@@ -75,19 +91,22 @@ export default function LoginPage() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(handleSubmitLg)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  onChange={handleChange}
-                  value={formData.email || ""}
+                  {...register('email', {required: {value: true, message: "Email is required!"}})}
                   id="email"
-                  name="email"
                   type="email"
-                  placeholder="m@example.com"
-                  required
+                  placeholder="Enter Username / Email"
+                  className={`${errors.email? 'border-l-8 border-l-red-500': ''}`}
                 />
+                {errors.email && (
+                  <div className="text-red500c text-xs ">
+                    {errors.email.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -100,13 +119,17 @@ export default function LoginPage() {
                   </a>
                 </div>
                 <Input
-                  onChange={handleChange}
-                  value={formData.password || ""}
-                  name="password"
+                  {...register('password', {required: {value: true, message: "Password is required!"}})}
                   id="password"
                   type="password"
-                  required
+                  placeholder="Enter Password"
+                  className={`${errors.password? 'border-l-8 border-l-red-500': ''}`}
                 />
+                {errors.password && (
+                  <div className="text-red500c text-xs ">
+                    {errors.password.message}
+                  </div>
+                )}
               </div>
             </div>
 

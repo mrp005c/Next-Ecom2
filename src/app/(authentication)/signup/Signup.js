@@ -18,28 +18,30 @@ import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { useDialog } from "@/components/modules/AlertDialog";
 import Link from "next/link";
 
+import { useForm, SubmitHandler } from "react-hook-form";
+import LoadingOverlay from "@/components/modules/LoadingOverlay";
+
 export default function SignInPage() {
   const { status } = useSession();
   const router = useRouter();
-  const [formData, setFormData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [ConfirmAlertDialog, alert] = useDialog();
+  // form handle
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formd = new FormData(e.target);
-    const cp = formd.get("cpassword");
-
-    if (formData.password !== cp) {
-      alert({ title: "Password Didn't Match!" });
-      return;
-    }
+  const handleSubmitSign = async (data) => {
+    setIsLoading(true);
+    delete data.cpassword;
+    console.log(data);
+    // return;
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    const raw = JSON.stringify(formData);
+    const raw = JSON.stringify(data);
     const requestOptions = {
       method: "POST",
       headers: myHeaders,
@@ -57,8 +59,11 @@ export default function SignInPage() {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/");
@@ -66,9 +71,10 @@ export default function SignInPage() {
   }, [status, router]);
 
   return (
-    <div className="flex-center p-4">
+    <div className="flex-center p-2">
+      <LoadingOverlay show={isLoading} message={"Singing In... Wait!"}/>
       {ConfirmAlertDialog}
-      <Card className="w-full max-w-sm bg-gray100c">
+      <Card className="w-full max-w-md bg-gray100c">
         <CardHeader>
           <CardTitle>Sign Up your account</CardTitle>
           <CardDescription>
@@ -84,86 +90,131 @@ export default function SignInPage() {
           </CardAction>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(handleSubmitSign)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
-                  onChange={handleChange}
-                  value={formData.name || ""}
-                  name="name"
+                  {...register("name", {
+                    required: { value: true, message: "Name is required!" },
+                  })}
                   id="name"
                   type="text"
-                  required
+                  placeholder="Enter Your Name"
                 />
+                {errors.name && (
+                  <div className="text-red500c text-xs ">
+                    {errors.name.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="image">Image</Label>
-                <Input
-                  onChange={handleChange}
-                  value={formData.image || ""}
-                  name="image"
-                  id="image"
-                  type="text"
-                />
+                <Input {...register("image")} placeholder="Image Url" id="image" type="text" />
+                {errors.image && (
+                  <div className="text-red500c text-xs ">
+                    {errors.image.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  onChange={handleChange}
-                  value={formData.email || ""}
-                  name="email"
-                  placeholder="m@example.com"
-                  required
+                  {...register("email", {
+                    required: { value: true, message: "Email is required!" },
+                  })}
+                  placeholder="Enter Email"
                 />
+                {errors.email && (
+                  <div className="text-red500c text-xs ">
+                    {errors.email.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
-                  type="number"
-                  onChange={handleChange}
-                  value={formData.phone || ""}
-                  name="phone"
-                  required
+                  type="text"
+                  {...register("phone", {
+                    required: {
+                      value: true,
+                      message: "Phone number is required!",
+                    },
+                    minLength: { value: 9, message: "At least 9 character" },
+                    maxLength: { value: 15, message: "Maximum 15 character!" },
+                  })}
+                  placeholder="Enter Phone Number"
                 />
+                {errors.phone && (
+                  <div className="text-red500c text-xs ">
+                    {errors.phone.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="address">Address</Label>
                 <Input
                   id="address"
                   type="text"
-                  onChange={handleChange}
-                  value={formData.address || ""}
-                  name="address"
-                  required
+                  {...register("address", {
+                    required: { value: true, message: "Address is required!" },
+                  })}
+                  placeholder="Enter Address"
                 />
+                {errors.address && (
+                  <div className="text-red500c text-xs ">
+                    {errors.address.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
                 <Input
-                  onChange={handleChange}
-                  value={formData.password || ""}
-                  name="password"
+                  {...register("password", {
+                    required: { value: true, message: "Password is required!" },
+                    minLength: { value: 6, message: "At least 6 character!" },
+                    maxLength: { value: 10, message: "Maximum 10 character!" },
+                  })}
                   id="password"
                   type="password"
-                  required
+                  placeholder="Enter Password"
                 />
+                {errors.password && (
+                  <div className="text-red500c text-xs ">
+                    {errors.password.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="cpassword">Confirm Password</Label>
                 </div>
                 <Input
-                  name="cpassword"
                   id="cpassword"
                   type="password"
-                  required
+                  {...register("cpassword", {
+                    required: {
+                      value: true,
+                      message: "Confirm password is required!",
+                    },
+                    minLength: { value: 6, message: "At least 6 character!" },
+                    maxLength: { value: 10, message: "Maximum 10 character!" },
+                    validate: (value) =>
+                      value === getValues("password") ||
+                      "Password do not match!",
+                  })}
+                  placeholder="Enter Password Again"
                 />
+                {errors.cpassword && (
+                  <div className="text-red500c text-xs ">
+                    {errors.cpassword.message}
+                  </div>
+                )}
               </div>
             </div>
             <Button type="submit" className="w-full my-3">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +14,7 @@ import {
 
 export function useDialog() {
   const [promise, setPromise] = useState(null);
+  const actionButtonRef = useRef(null)
   const [dialogData, setDialogData] = useState({
     type: "confirm", // "confirm" or "alert"
     title: "Are you sure?",
@@ -21,6 +22,14 @@ export function useDialog() {
     confirmText: "Confirm",
     cancelText: "Cancel",
   });
+
+  useEffect(() => {
+  if (promise && actionButtonRef.current) {
+    setTimeout(() => {
+      actionButtonRef.current?.focus();
+    }, 20);
+  }
+}, [promise]);
 
   // --- CONFIRM dialog (returns true/false)
   const alert = (options = {}) =>
@@ -70,12 +79,13 @@ export function useDialog() {
               <AlertDialogCancel onClick={() => handleClose(false)}>
                 {dialogData.cancelText}
               </AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleClose(true)}>
+              <AlertDialogAction 
+              ref={actionButtonRef} onClick={() => handleClose(true)}>
                 {dialogData.confirmText}
               </AlertDialogAction>
             </>
           ) : (
-            <AlertDialogAction onClick={() => handleClose(true)}>
+            <AlertDialogAction   ref={actionButtonRef} onClick={() => handleClose(true)}>
               {dialogData.confirmText}
             </AlertDialogAction>
           )}

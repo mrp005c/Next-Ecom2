@@ -42,6 +42,9 @@ import { useDialog } from "@/components/modules/AlertDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OrderItem from "@/components/modules/OrderItem";
 
+import { useFieldArray, useForm, Controller } from "react-hook-form";
+import { MdDeleteForever } from "react-icons/md";
+
 const AdminPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -52,8 +55,9 @@ const AdminPage = () => {
   const [dbInfo, setDbInfo] = useState();
   const [users, setUsers] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [formData, setFormData] = useState({ image: [""] });
-  
+
   const [isloading, setIsloading] = useState(false);
   const { items, loading } = useSelector((state) => state.products);
   // Messages tab
@@ -68,13 +72,50 @@ const AdminPage = () => {
   const [ConfirmAlertDialog, alert, confirm] = useDialog();
 
 
+  // form
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      image: [""], // initial at least one image field
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "image",
+  });
+
+
+  
+    const {
+      register: register2,
+      control: control2,
+      handleSubmit: handleSubmit2,
+      reset: reset2,
+      formState: { errors: errors2 },
+    } = useForm({
+      defaultValues: {
+        image: [""], 
+      },
+    });
+  
+    const { fields: fields2, append: append2, remove: remove2} = useFieldArray({
+      control : control2,
+      name: "image",
+    });
+  
+
   // load product
   const loadProducts = useCallback(async () => {
     dispatch(fetchProducts());
   }, [dispatch]);
-  
 
-  
   // tab change effect
   useEffect(() => {
     if (tab === "users" && users.length === 0) {
@@ -126,20 +167,20 @@ const AdminPage = () => {
 
   /* Product tab content
   and other handler */
-  
+
   // form change handler
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   // Add product
-  const handleSubmitAdd = async (e) => {
+  const handleSubmitAdd = async (data) => {
     setIsloading(true);
-    e.preventDefault();
 
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
+    console.log(data);
 
-    const raw = JSON.stringify(formData);
+    const raw = JSON.stringify(data);
 
     const requestOptions = {
       method: "POST",
@@ -153,7 +194,73 @@ const AdminPage = () => {
       if (res.success) {
         toast.success(res.message);
         setOpenAdd(false);
-        setFormData({ image: [""] });
+        loadProducts();
+        reset();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsloading(false);
+    }
+  };
+
+  // Delete product
+
+  const handleDelete = async (e, productName) => {
+    const ok = await confirm({
+      title: "Delete Product?",
+      description: `Are you sure you want to delete "${productName}"? This cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    });
+    if (!ok) {
+      return;
+    }
+    const requestOptions = {
+      method: "DELETE",
+      redirect: "follow",
+    };
+    try {
+      const del = await fetch(`/api/products/product?id=${e}`, requestOptions);
+      const res = await del.json();
+
+      if (res.success) {
+        toast.success(res.message);
+        loadProducts();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Upadate Product Submit
+  const handleSubmitEdit = async (data) => {
+    console.log(data);
+    return;
+    setIsloading(true);
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify(data);
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+    try {
+      const upd = await fetch("/api/products/product", requestOptions);
+      const res = await upd.json();
+      if (res.success) {
+        toast.success(res.message);
+        setOpenD(false);
+        setFormData({});
         loadProducts();
       } else {
         toast.error(res.message);
@@ -330,9 +437,377 @@ const AdminPage = () => {
       {/* add */}
       <Dialog open={openAdd} onOpenChange={setOpenAdd}>
         <DialogContent className="sm:max-w-[425px] max-h-full overflow-auto my-3">
-          <form onSubmit={handleSubmitAdd}>
+          <form onSubmit={handleSubmit(handleSubmitAdd)}>
             <DialogHeader>
               <DialogTitle>Add Product</DialogTitle>
+              <DialogDescription>
+                Make changes to your productId here. Click save when you&apos;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name-1">Name</Label>
+                <Input
+                  id="name-1"
+                  {...register("name", {
+                    required: { value: true, message: "Name is required!" },
+                  })}
+                  placeholder="Product Name"
+                />
+                {errors.name && (
+                  <div className="text-red500c text-xs ">
+                    {errors.name.message}
+                  </div>
+                )}
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="image">Image</Label>
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 my-2">
+                    <Input
+                      {...register(`image.${index}`)}
+                      placeholder="Image URL"
+                    />
+
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size={"icon-lg"}
+                      onClick={() => remove(index)}
+                    >
+                      <MdDeleteForever />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant={"outline"}
+                  size={"icon"}
+                  type="button"
+                  className={"flex-center"}
+                  onClick={() => append("")}
+                >
+                  <IoAddCircle />
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="price">Price</Label>
+                  <Input
+                    {...register("price", {
+                      required: { value: true, message: "Price is required!" },
+                    })}
+                    id="price"
+                    type="number"
+                    placeholder="Enter Product Price"
+                  />
+                  {errors.price && (
+                    <div className="text-red500c text-xs ">
+                      {errors.price.message}
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="ratings">Ratings</Label>
+                  <Input
+                    {...register("rating", {
+                      max: { value: 5, message: "Max ratings rate is 5!" },
+                    })}
+                    placeholder="Enter Ratings"
+                    type="number"
+                    id="ratings"
+                  />
+                  {errors.ratings && (
+                    <div className="text-red500c text-xs ">
+                      {errors.ratings.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-between flex-wrap gap-2">
+                <div className="flex-center">
+                  <Label htmlFor="instock">In Stock</Label>
+                  <input
+                    {...register("inStock")}
+                    className="h-8 rounded-sm w-5 "
+                    id="instock"
+                    type="checkbox"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Controller
+                    name="category"
+                    control={control}
+                    defaultValue={"uncategorized"}
+                    render={({ field }) => (
+                      <Select
+                        // {...register("category")}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        placeholder="Category"
+                        id="category"
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Category</SelectLabel>
+                            <SelectItem value="uncategorized">
+                              Uncategorized
+                            </SelectItem>
+                            <SelectItem value="accessories">
+                              Accessories
+                            </SelectItem>
+                            <SelectItem value="electronics">
+                              Electronics
+                            </SelectItem>
+                            <SelectItem value="fashion">Fashion</SelectItem>
+                            <SelectItem value="home-appliances">
+                              Home Appliances
+                            </SelectItem>
+                            <SelectItem value="beauty-health">
+                              Beauty & Health
+                            </SelectItem>
+                            <SelectItem value="sports-outdoors">
+                              Sports & Outdoors
+                            </SelectItem>
+                            <SelectItem value="toys-games">
+                              Toys & Games
+                            </SelectItem>
+                            <SelectItem value="groceries">Groceries</SelectItem>
+                            <SelectItem value="books">Books</SelectItem>
+                            <SelectItem value="furniture">Furniture</SelectItem>
+                            <SelectItem value="mobile">
+                              Mobile Phones
+                            </SelectItem>
+                            <SelectItem value="computers">
+                              Computers & Laptops
+                            </SelectItem>
+                            <SelectItem value="watches">Watches</SelectItem>
+                            <SelectItem value="shoes">Shoes</SelectItem>
+                            <SelectItem value="bags">Bags</SelectItem>
+                            <SelectItem value="camera">
+                              Cameras & Photography
+                            </SelectItem>
+                            <SelectItem value="kitchen">
+                              Kitchen Essentials
+                            </SelectItem>
+                            <SelectItem value="automotive">
+                              Automotive
+                            </SelectItem>
+                            <SelectItem value="gaming">Gaming</SelectItem>
+                            <SelectItem value="pets">Pet Supplies</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* edit product diagram */}
+      {/* diagram container  */}
+      <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+        <DialogContent className="sm:max-w-[425px] max-h-full overflow-auto">
+          <form onSubmit={handleSubmit2(handleSubmitEdit)}>
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+              <DialogDescription>
+                Make changes to your productId here. Click save when you&apos;re
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name-1">Name</Label>
+                <Input
+                  id="name-1"
+                  {...register2("name", {
+                    required: { value: true, message: "Name is required!" },
+                  })}
+                  placeholder="Product Name"
+                />
+                {errors2.name && (
+                  <div className="text-red500c text-xs ">
+                    {errors2.name.message}
+                  </div>
+                )}
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="image">Image</Label>
+                {fields2.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 my-2">
+                    <Input
+                      {...register2(`image.${index}`)}
+                      placeholder="Image URL"
+                    />
+
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size={"icon-lg"}
+                      onClick={() => remove2(index)}
+                    >
+                      <MdDeleteForever />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant={"outline"}
+                  size={"icon"}
+                  type="button"
+                  className={"flex-center"}
+                  onClick={() => append2("")}
+                >
+                  <IoAddCircle />
+                </Button>
+              </div>
+
+              <div className="flex gap-2">
+                <div className="grid gap-2">
+                  <Label htmlFor="price">Price</Label>
+                  <Input
+                    {...register2("price", {
+                      required: { value: true, message: "Price is required!" },
+                    })}
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    placeholder="Enter Product Price"
+                  />
+                  {errors2.price && (
+                    <div className="text-red500c text-xs ">
+                      {errors2.price.message}
+                    </div>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="ratings">Ratings</Label>
+                  <Input
+                    {...register2("rating", {
+                      max: { value: 5, message: "Max ratings rate is 5!" },
+                    })}
+                    placeholder="Enter Ratings"
+                    type="number"
+                    step="0.01"
+                    id="ratings"
+                  />
+                  {errors2.rating && (
+                    <div className="text-red500c text-xs ">
+                      {errors2.rating.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-between flex-wrap gap-2">
+                <div className="flex-center">
+                  <Label htmlFor="instock">In Stock</Label>
+                  <input
+                    {...register2("inStock")}
+                    className="h-8 rounded-sm w-5 "
+                    id="instock"
+                    type="checkbox"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Controller
+                    name="category"
+                    control={control2}
+                    defaultValue={"uncategorized"}
+                    render={({ field }) => (
+                      <Select
+                        // {...register("category")}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        placeholder="Category"
+                        id="category"
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Category</SelectLabel>
+                            <SelectItem value="uncategorized">
+                              Uncategorized
+                            </SelectItem>
+                            <SelectItem value="accessories">
+                              Accessories
+                            </SelectItem>
+                            <SelectItem value="electronics">
+                              Electronics
+                            </SelectItem>
+                            <SelectItem value="fashion">Fashion</SelectItem>
+                            <SelectItem value="home-appliances">
+                              Home Appliances
+                            </SelectItem>
+                            <SelectItem value="beauty-health">
+                              Beauty & Health
+                            </SelectItem>
+                            <SelectItem value="sports-outdoors">
+                              Sports & Outdoors
+                            </SelectItem>
+                            <SelectItem value="toys-games">
+                              Toys & Games
+                            </SelectItem>
+                            <SelectItem value="groceries">Groceries</SelectItem>
+                            <SelectItem value="books">Books</SelectItem>
+                            <SelectItem value="furniture">Furniture</SelectItem>
+                            <SelectItem value="mobile">
+                              Mobile Phones
+                            </SelectItem>
+                            <SelectItem value="computers">
+                              Computers & Laptops
+                            </SelectItem>
+                            <SelectItem value="watches">Watches</SelectItem>
+                            <SelectItem value="shoes">Shoes</SelectItem>
+                            <SelectItem value="bags">Bags</SelectItem>
+                            <SelectItem value="camera">
+                              Cameras & Photography
+                            </SelectItem>
+                            <SelectItem value="kitchen">
+                              Kitchen Essentials
+                            </SelectItem>
+                            <SelectItem value="automotive">
+                              Automotive
+                            </SelectItem>
+                            <SelectItem value="gaming">Gaming</SelectItem>
+                            <SelectItem value="pets">Pet Supplies</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
+
+          {/* <form onSubmit={handleSubmit}>
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
               <DialogDescription>
                 Make changes to your productId here. Click save when you&apos;re
                 done.
@@ -347,7 +822,6 @@ const AdminPage = () => {
                   value={formData.name || ""}
                   name="name"
                   placeholder="Product Name"
-                  required
                 />
               </div>
               <div className="grid gap-3">
@@ -379,7 +853,7 @@ const AdminPage = () => {
                   <IoAddCircle />
                 </Button>
               </div>
-              {/* <div className="grid gap-3">
+              <div className="grid gap-3">
                 <Label htmlFor="proid">Product Id</Label>
                 <Input
                   id="proid"
@@ -387,9 +861,8 @@ const AdminPage = () => {
                   value={formData.productId || ""}
                   name="productId"
                   placeholder="Product Id"
-                  required
                 />
-              </div> */}
+              </div>
               <div className="flex gap-2">
                 <div className="grid gap-2">
                   <Label htmlFor="price">Price</Label>
@@ -399,7 +872,6 @@ const AdminPage = () => {
                     id="price"
                     name="price"
                     type="number"
-                    required
                   />
                 </div>
                 <div className="grid gap-2">
@@ -422,22 +894,22 @@ const AdminPage = () => {
                       setFormData({ ...formData, inStock: e.target.checked })
                     }
                     className="h-8 rounded-sm w-5 "
-                    checked={formData.inStock ?? true}
+                    checked={!!formData.inStock}
                     id="instock"
                     name="inStock"
                     type="checkbox"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex ">
                   <Label htmlFor="category">Category</Label>
-
                   <Select
+                    className="ring-1 ring-gray200c"
                     value={formData.category || ""}
                     onValueChange={(value) =>
                       setFormData({ ...formData, category: value })
                     }
                     name="category"
-                    placeholder="Category"
+                    placeholder="Select One"
                     id="category"
                   >
                     <SelectTrigger className="w-[180px]">
@@ -491,10 +963,9 @@ const AdminPage = () => {
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              {/* <Button  type="submit" >Save changes</Button> */}
               <Button type="submit">Save changes</Button>
             </DialogFooter>
-          </form>
+          </form> */}
         </DialogContent>
       </Dialog>
       {/* Admin Panel Header */}
@@ -695,9 +1166,11 @@ const AdminPage = () => {
                   {items.map((item) => {
                     return (
                       <AdProduct
-                        loadProducts={loadProducts}
+                        handleDelete={handleDelete}
                         key={item.productId}
                         item={item}
+                        reset2={reset2}
+                        setOpenEdit={setOpenEdit}
                       />
                     );
                   })}
