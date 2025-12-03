@@ -1,15 +1,17 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 const PageOrder = () => {
+  const searchParams = useSearchParams();
   const [order, setOrder] = useState();
   const { data: session } = useSession();
   const params = useParams();
   const oid = params.oid;
+  const [pay, setPay] = useState(searchParams.get('pay'))
 
   const checkout = async (formData) => {
     const payload = {
@@ -27,40 +29,6 @@ const PageOrder = () => {
     const data = await res.json();
     window.location.href = data.url;
   };
-
-  // const order = {
-  //   _id: "69252519f9e578e8d07acc35",
-  //   userId: "1432",
-  //   name: "Admin NE",
-  //   email: "admin@ne.com",
-  //   phone: "01756535801",
-  //   address: "Natore, Narayanput, Tebaria",
-  //   products: [
-  //     {
-  //       productId: 3,
-  //       name: "Men’s Casual Leather Jacket",
-  //       price: 90.99,
-  //       quantity: 1,
-  //     },
-  //     {
-  //       productId: 2,
-  //       name: "Men’s Casual Leather Jacket",
-  //       price: 90.99,
-  //       quantity: 1,
-  //     },
-  //     {
-  //       productId: 1,
-  //       name: "Men’s Casual  as;ldfk as;ldkfsathis is a very good product for usd;flk Leather Jacket",
-  //       price: 90.99,
-  //       quantity: 1,
-  //     },
-  //   ],
-  //   status: "pending",
-  //   paid: false,
-  //   createdAt: "2025-11-25T03:40:09.687Z",
-  //   updatedAt: " 2025-11-25T03:40:09.687Z",
-  //   __v: 0,
-  // };
 
   const loadOrderId = useCallback(async () => {
     const requestOptions = {
@@ -89,6 +57,17 @@ const PageOrder = () => {
     a();
   }, [loadOrderId]);
 
+  useEffect(() => {
+    if (order && pay === "yes") {
+      const a = async () => {
+        
+        console.log(pay)
+        await checkout(order)
+      }
+      a()
+    }
+  }, [order, pay]);
+
   return (
     <div>
       {order ? (
@@ -114,19 +93,19 @@ const PageOrder = () => {
             <span>Status</span>
             <div className="bg-gray50c space-x-3 px-3 py-2 rounded-sm">
               <span
-              className={`p-2 rounded-sm box-border  ${
-                order.paid ? "bg-violet100c" : "bg-red300c"
-              }`}
-            >
-              {order.paid ? "Paid" : "Unpaid"}
-            </span>
-            <span
-              className={`p-2 rounded-sm box-border  ${
-                order.status != "pending" ? "bg-violet100c" : "bg-red300c"
-              }`}
-            >
-              {order.paid ? "Confirmed" : "Pending"}
-            </span>
+                className={`p-2 rounded-sm box-border  ${
+                  order.paid ? "bg-violet100c" : "bg-red300c"
+                }`}
+              >
+                {order.paid ? "Paid" : "Unpaid"}
+              </span>
+              <span
+                className={`p-2 rounded-sm box-border  ${
+                  order.status != "pending" ? "bg-violet100c" : "bg-red300c"
+                }`}
+              >
+                {order.paid ? "Confirmed" : "Pending"}
+              </span>
             </div>
           </div>
 
@@ -156,15 +135,19 @@ const PageOrder = () => {
                   <span>${item.price}</span>
                 </div>
               ))}
-              <div className=" w-full text-base font-bold max-w-[500px] flex-between gap-3 flex-1  mx-auto">
+            <div className=" w-full text-base font-bold max-w-[500px] flex-between gap-3 flex-1  mx-auto">
               <span className="p-2 flex-center rounded-sm bg-gray100c font-bold">
                 Total Items: {order.products && order.products.length}
               </span>
               {/* <span className="shrink flex-center flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                 Name
               </span> */}
-              <span className="flex-center"> ${order.products &&
-                order.products.reduce((a, b) => a + b.price, 0).toFixed(2)}</span>
+              <span className="flex-center">
+                {" "}
+                $
+                {order.products &&
+                  order.products.reduce((a, b) => a + b.price, 0).toFixed(2)}
+              </span>
             </div>
           </div>
           {session && session.user.id === order.userId && !order.paid && (

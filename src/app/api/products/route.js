@@ -5,12 +5,11 @@ import { NextResponse } from "next/server";
 
 //Post Your Data
 
-
 //Get Your Data
 export async function GET(request) {
   await connectDB();
   const result = await Product.find();
-  
+
   // return Response.json(result);
   if (result.length > 0) {
     return NextResponse.json({
@@ -23,6 +22,6 @@ export async function GET(request) {
   return NextResponse.json({
     success: false,
     error: true,
-    message: "Invoice Not Found !",
+    message: "Products Not Found !",
   });
 }

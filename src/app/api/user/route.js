@@ -32,10 +32,6 @@ export async function POST(request) {
     };
   }
 
-  // updated body
-
-  console.log("Updated body:", updatedBody);
-
   // insert doc
   const result = await User.insertOne(updatedBody);
 
@@ -65,10 +61,6 @@ export async function PUT(request) {
       password: hashedPassword,
     };
   }
-
-  // updated body
-
-  console.log("Updated body:", updatedBody);
 
   const result = await User.updateOne({ email: updatedBody.email }, updatedBody);
 

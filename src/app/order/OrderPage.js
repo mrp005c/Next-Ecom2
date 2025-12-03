@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast, Toaster } from "sonner";
+import { useForm } from "react-hook-form";
 
 const OrderPage = () => {
   const router = useRouter();
@@ -20,14 +21,22 @@ const OrderPage = () => {
   const { data: session, status } = useSession();
   const [formData, setFormData] = useState({});
   const [ConfirmAlertDialog, alert, confirm] = useDialog();
-  
 
-  const handleCartLoad =   useCallback(async () => {
+  // form handle
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const handleCartLoad = useCallback(async () => {
     if (session) {
       const userId = session.user.id;
       dispatch(fetchCart(userId));
     }
-  },[session, dispatch])
+  }, [session, dispatch]);
 
   const handleRomoveFromCart = async (newCartItem) => {
     if (!session) {
@@ -65,6 +74,25 @@ const OrderPage = () => {
     }
   };
 
+  // checkout
+
+  const checkout = async (formData) => {
+    const payload = {
+      orderId: formData._id,
+      userId: formData.userId,
+      products: formData.products,
+    };
+
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    window.location.href = data.url;
+  };
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push(`/login?redurl=${encodeURIComponent("/order")}`);
@@ -76,13 +104,21 @@ const OrderPage = () => {
   }, [session, handleCartLoad]);
 
   useEffect(() => {
-    if (session && cartItems) {
-      setFormData({
+    if (session) {
+      reset({
         userId: session.user.id,
         name: session.user.name ?? "",
         email: session.user.email ?? "",
         phone: session.user.phone ?? "",
         address: session.user.address ?? "",
+      });
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (session && cartItems) {
+      reset((e) => ({
+        ...e,
         products: cartItems
           ? cartItems.map((e) => ({
               productId: e.productId,
@@ -91,18 +127,14 @@ const OrderPage = () => {
               quantity: e.quantity ?? 1,
             }))
           : [],
-      });
+      }));
     }
   }, [session, cartItems]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmitOrder = async (e) => {
-    e.preventDefault();
-    if (formData.products.length === 0) {
-      toast.error("Please add a Product.");
+  const handleSubmitOrder = async (data) => {
+    console.log(data);
+    if (data.products.length === 0) {
+      setError('products', {message: 'At least 1 product required to Order!'})
       return;
     }
     setIsloading(true);
@@ -110,21 +142,7 @@ const OrderPage = () => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    const payload = {
-      userId: formData.userId,
-      products: formData.products.map((item) => ({
-        productId: item.productId,
-        name: item.name,
-        price: item.price,
-        quantity: 1,
-      })),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      address: formData.address,
-    };
-
-    const raw = JSON.stringify(payload);
+    const raw = JSON.stringify(data);
 
     const requestOptions = {
       method: "POST",
@@ -139,7 +157,7 @@ const OrderPage = () => {
         toast.success(res.message, {
           description: new Date().toUTCString(),
           action: {
-            label: "Pay Now",
+            label: "View Order",
             onClick: () => router.push(`/order/${res.result._id}`),
           },
         });
@@ -174,8 +192,9 @@ const OrderPage = () => {
         });
 
         if (conf) {
-          router.push(`/order/${res.result._id}`);
+          await checkout(data)
         }
+        reset()
       } else {
         toast.error(res.message);
       }
@@ -197,52 +216,76 @@ const OrderPage = () => {
       <LoadingOverlay show={isloading} message={"Order in Progress..."} />
       <div>
         <h2 className="text-2xl font-bold m-2 flex-center">Place A Order</h2>
-        <div className="max-w-[600px] bg-gray200c  rounded-md p-3 m-4 mx-auto h-fit">
-          <form onSubmit={handleSubmitOrder}>
+        <div className="max-w-[600px] bg-gray100c  rounded-md p-3 m-4 mx-auto h-fit">
+          <form onSubmit={handleSubmit(handleSubmitOrder)}>
             <div className="grid gap-4">
               <div className="grid gap-3">
                 <Label htmlFor="name-1">Name</Label>
                 <Input
+                className={'bg-gray50c dark:bg-gray50c'}
                   id="name-1"
-                  onChange={handleChange}
-                  value={formData.name || ""}
-                  name="name"
+                  {...register("name", {
+                    required: { value: true, message: "Name is required!" },
+                  })}
                   placeholder="Product Name"
-                  required
                 />
+                {errors.name && (
+                  <div className="text-red500c text-xs ">
+                    {errors.name.message}
+                  </div>
+                )}
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="email-1">Email</Label>
                 <Input
+                className={'bg-gray50c dark:bg-gray50c'}
                   id="email-1"
-                  onChange={handleChange}
-                  value={formData.email || ""}
-                  name="email"
+                  {...register("email", {
+                    required: { value: true, message: "Name is required!" },
+                  })}
                   placeholder="Email"
-                  required
                 />
+                {errors.email && (
+                  <div className="text-red500c text-xs ">
+                    {errors.email.message}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <div className="grid gap-2">
                   <Label htmlFor="price">Phone</Label>
                   <Input
-                    onChange={handleChange}
-                    value={formData.phone || ""}
+                  className={'bg-gray50c dark:bg-gray50c'}
                     id="phone"
-                    name="phone"
-                    type="number"
-                    required
+                    {...register("phone", {
+                      required: { value: true, message: "Phone is required!" },
+                    })}
+                    type="text"
                   />
+                  {errors.phone && (
+                    <div className="text-red500c text-xs ">
+                      {errors.phone.message}
+                    </div>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="address">Address</Label>
                   <Input
-                    onChange={handleChange}
-                    type="text"
-                    value={formData.address || ""}
+                  className={'bg-gray50c dark:bg-gray50c'}
                     id="address"
-                    name="address"
+                    {...register("address", {
+                      required: {
+                        value: true,
+                        message: "Address is required!",
+                      },
+                    })}
+                    type="text"
                   />
+                  {errors.address && (
+                    <div className="text-red500c text-xs ">
+                      {errors.address.message}
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Cart items */}
@@ -258,6 +301,11 @@ const OrderPage = () => {
                 ) : (
                   <h1>No item to show!</h1>
                 )}
+                 {errors.products && (
+                  <div className="text-red500c text-xs ">
+                    {errors.products.message}
+                  </div>
+                )}
               </div>
 
               <div className="calculate flex-between justify-end text-md bg-background p-2 font-bold gap-3 flex-wrap">
@@ -268,6 +316,7 @@ const OrderPage = () => {
                     ? cartItems.reduce((a, b) => a + b.price, 0)
                     : 0}
                 </span>
+               
               </div>
             </div>
             {/* <Button  type="submit" >Save changes</Button> */}

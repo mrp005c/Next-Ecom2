@@ -12,7 +12,7 @@ export async function generateMetadata(props) {
         headers: myHeaders,
         redirect: "follow",
     };
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
     const id = await params.id;
 
@@ -21,8 +21,10 @@ export async function generateMetadata(props) {
         { cache: "no-store" }
     );
     const data = await res.json();
-
-    if (!data.success) {
+    
+    // const data = null;
+    // if (!data || !data.success) {
+    if (!data || !data.success) {
         return {
             title: "Product Not Found",
             description: "This product does not exist.",

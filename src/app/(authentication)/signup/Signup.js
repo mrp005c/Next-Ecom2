@@ -37,8 +37,7 @@ export default function SignInPage() {
   const handleSubmitSign = async (data) => {
     setIsLoading(true);
     delete data.cpassword;
-    console.log(data);
-    // return;
+    
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     const raw = JSON.stringify(data);

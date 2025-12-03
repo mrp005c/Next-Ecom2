@@ -35,7 +35,6 @@ export default function LoginPage() {
     } = useForm();
 
   const handleSubmitLg = async (data) => {
-    console.log(data)
     
     const res = await signIn("credentials", {
       redirect: false,

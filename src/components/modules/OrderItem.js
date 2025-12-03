@@ -13,16 +13,18 @@ const OrderItem = ({ item }) => {
         </span>
         <div className="flex items-center justify-start gap-x-3 w-full flex-wrap bg-gray100c  rounded-md text-lg">
           <span>Name: {item.name}</span>
-          <span>Email: {item.email}</span>
-          <span>Phone: {item.phone}</span>
-          <span>Address: {item.address}</span>
+          <span className="break-all">Email: {item.email}</span>
+          <span className="break-all">Phone: {item.phone}</span>
+          <span className="break-all">Address: {item.address}</span>
         </div>
         <div className="flex flex-wrap items-center gap-x-3">
           <span>
-            Payble Amount:
+            Total Price: $
             {item.products.length > 0 &&
-              item.products.reduce((a, b) => a + b.price, 0)}
-            $
+              (item.products.reduce((a, b) => a + b.price, 0).toFixed(2))
+              }
+
+           
           </span>
           <span>Items: {item.products.length}</span>
         </div>

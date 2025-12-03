@@ -10,25 +10,14 @@ import { useDialog } from "@/components/modules/AlertDialog";
 
 const AdProduct = ({ item, handleDelete, reset2, setOpenEdit }) => {
 
-  const [formData, setFormData] = useState({});
-  const [ConfirmAlertDialog, alert, confirm] = useDialog();
-  const [isloading, setIsloading] = useState(false);
-  const router = useRouter();
-
-
-  // Delete product
-
 
   return (
-    <>
-      {ConfirmAlertDialog}
-      <Toaster />
-      <LoadingOverlay show={isloading} message={"Updating... Please Wait!"} />
-   
-      <div className="flex justify-start items-start flex-col min-w-[280px] max-w-[380px] w-full flex-1 hover:bg-gray100c bg-gray200c p-2 box-border rounded-lg transition-all hover:shadow-md shadow-blue-300  hover:translate-y-[calc(-2px)] ">
+       
+      <div id={item.productId} className="flex justify-start items-start flex-col min-w-[280px] max-w-[380px] w-full flex-1 hover:bg-gray100c bg-gray200c p-2 box-border rounded-lg transition-all hover:shadow-md shadow-blue-300  hover:translate-y-[calc(-2px)] ">
         <div className="buttons flex-around text-2xl w-full py-2 rounded-md ">
           <button
             onClick={() => {
+              setOpenEdit(true);
               reset2({
                 id: item._id,
                 name: item.name,
@@ -39,7 +28,6 @@ const AdProduct = ({ item, handleDelete, reset2, setOpenEdit }) => {
                 productId: item.productId,
                 inStock: item.inStock,
               });
-              setOpenEdit(true);
             }}
             className="p-2 rounded-full flex-center bg-gray300c hover:bg-gray200c active:bg-gray400c transition-all"
             type="button"
@@ -56,7 +44,7 @@ const AdProduct = ({ item, handleDelete, reset2, setOpenEdit }) => {
         </div>
         <Link
           href={`/products/${item.productId}`}
-          className="h-[200px] w-full z-10 relative cursor-pointer bg-gray200c rounded-lg"
+          className="h-[200px] w-full z-10 relative cursor-pointer bg-gray50c rounded-lg"
         >
           <Image
             fill
@@ -99,7 +87,6 @@ const AdProduct = ({ item, handleDelete, reset2, setOpenEdit }) => {
           )}
         </div>
       </div>
-    </>
   );
 };
 

@@ -24,7 +24,6 @@ import { useForm } from "react-hook-form";
 
 const DashNav = () => {
   const { data: session, status, update } = useSession();
-  const [formData, setFormData] = useState({});
   const [openD, setOpenD] = useState(false);
   const [isLoading, setIsloading] = useState(false);
   const router = useRouter();
@@ -102,6 +101,8 @@ const DashNav = () => {
       <Toaster />
       {/* diagram container  */}
       <LoadingOverlay show={isLoading} message={"Updating Profile..."} />
+
+      {/* Edit profile dialog */}
       <Dialog open={openD} onOpenChange={setOpenD}>
         <DialogContent className="sm:max-w-[425px] overflow-auto max-h-screen">
           <form onSubmit={handleSubmit(handleSubmitEdit)}>
@@ -253,10 +254,12 @@ const DashNav = () => {
           </form>
         </DialogContent>
       </Dialog>
-      <div className="w-ful flex-between bg-gray300c rounded-md container mx-auto px-3 py-4 flex-wrap">
+
+
+      <div className="w-ful flex-between bg-gray100c my-2 rounded-md container mx-auto px-3 py-4 gap-3 max-[500px]:flex-col flex-wrap">
         <h1 className="text-2xl font-bold flex-center ">Dashboard</h1>
-        <div className=" bg-gray100c p-2 rounded-md flex-between flex-wrap flex-col">
-          <div className="flex-center gap-3 ">
+        <div className=" bg-gray50c p-2 rounded-md w-fit flex-between flex-wrap flex-col max-[500px]:flex-1 ">
+          <div className="flex-center gap-3 w-fit flex-wrap md:flex-nowrap">
             <div className=" min-h-20 min-w-20 relative">
               <Image
                 fill
@@ -266,9 +269,9 @@ const DashNav = () => {
                 alt=""
               />
             </div>
-            <div className="flex flex-col w-full overflow-hidden text-ellipsis text-nowrap">
-              <span className="text-lg font-bold">{session.user.name}</span>
-              <span>{session.user.email}</span>
+            <div className="flex flex-col w-fit overflow-hidden text-ellipsis text-nowrap">
+              <span className="text-lg font-bold w-full overflow-hidden text-ellipsis text-wrap">{session.user.name}</span>
+              <span className="overflow-hidden text-ellipsis text-nowrap w-full box-border text-xs">{session.user.email}</span>
             </div>
           </div>
           <div className="flex-center flex-wrap gap-2">

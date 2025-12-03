@@ -5,34 +5,42 @@ import Product from "@/models/Product";
 
 // Update your data
 export async function PUT(request) {
- 
   const body = await request.json();
   const id = body.id;
   delete body.id;
   await connectDB();
 
-  const result = await Product.findByIdAndUpdate(
-    id,
-    { $set: body },
-    {
-      new: true,
-      runValidators: true,
+  let result;
+  try {
+    result = await Product.findByIdAndUpdate(
+      id,
+      { $set: body },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (result) {
+      return NextResponse.json({
+        success: true,
+        error: false,
+        result: result,
+        message: "Products Updated",
+      });
     }
-  );
-
-  if (result) {
     return NextResponse.json({
-      success: true,
-      error: false,
-      result: result,
-      message: "Products Updated",
+      success: false,
+      error: true,
+      message: "Product Not Found !",
+    });
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      error: true,
+      message: "Product Update Failed !",
+      result: error,
     });
   }
-  return NextResponse.json({
-    success: false,
-    error: true,
-    message: "Product Not Found !",
-  });
 }
 
 // Delete
@@ -63,7 +71,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("productId");
   await connectDB();
-  const result = await Product.findOne({productId: id});
+  const result = await Product.findOne({ productId: id });
 
   // return Response.json(result);
   if (result) {
@@ -85,23 +93,34 @@ export async function POST(request) {
   // const { searchParams } = new URL(request.url);
   await connectDB();
   const body = await request.json();
-  const doc = await Product.find({ productId: body.productId });
-  
-  if (doc.length > 0) {
+  // const doc = await Product.exists({ productId: body.productId });
+
+  // if (doc) {
+  //   return NextResponse.json({
+  //     success: false,
+  //     dublicate:true,
+  //     error: true,
+  //     message: "Already Exists The Product key!",
+  //   });
+  // }
+  // insert doc
+
+  let result;
+  try {
+    result = await Product.insertOne(body);
+
     return NextResponse.json({
+      success: true,
+      error: false,
+      message: "Your Product Added Successfully",
+      result: result,
+    });
+  } catch (error) {
+     return NextResponse.json({
       success: false,
       error: true,
-      message: "Already Exists!",
+      message: "Product Added Unsuccessful!",
+      result: error,
     });
   }
-  // insert doc
-  
-  const result = await Product.insertOne(body);
-
-  return NextResponse.json({
-    success: true,
-    error: false,
-    message: "Your Product Added",
-    result: result,
-  });
 }

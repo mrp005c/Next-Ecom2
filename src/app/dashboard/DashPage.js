@@ -119,7 +119,7 @@ const DashBoardPage = () => {
 
   if (status === "authenticated") {
     return (
-      <div className="container mx-auto p-2 ">
+      <div className="container mx-auto ">
         <LoadingOverlay show={isloading} message={"Loading"} />
         {/* Tab links  */}
         <div className=" flex-center gap-2 flex-wrap p-3 bg-gray200c  border border-gray200c rounded-md">
