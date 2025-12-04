@@ -32,6 +32,7 @@ export default function Home() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
@@ -161,20 +162,15 @@ export default function Home() {
   };
 
   const handleSendMessage = async (data) => {
-    console.log(data);
-    return;
-    const formd = new FormData(e.target);
-    const name_m = formd.get("name");
-    const email_m = formd.get("email");
-    const message_m = formd.get("message");
+    
+    // const formd = new FormData(e.target);
+    // const name_m = formd.get("name");
+    // const email_m = formd.get("email");
+    // const message_m = formd.get("message");
 
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    const raw = JSON.stringify({
-      name: name_m,
-      email: email_m,
-      message: message_m,
-    });
+    const raw = JSON.stringify(data);
     const requestOptions = {
       method: "POST",
       headers: myHeaders,
@@ -187,7 +183,7 @@ export default function Home() {
 
       if (res.success) {
         toast.success(res.message);
-        e.target.reset();
+        reset();
       } else {
         alert({ title: res.message });
       }

@@ -72,11 +72,10 @@ const PageOrder = () => {
   }, [order, pay]);
 
   useEffect(() => {
-   if (notfoundp) {
-    return notFound();
-   }
-  }, [notfoundp])
-  
+    if (notfoundp) {
+      return notFound();
+    }
+  }, [notfoundp]);
 
   return (
     <div>
@@ -139,7 +138,10 @@ const PageOrder = () => {
                   <span className="p-2 rounded-sm bg-gray100c font-bold">
                     {ind + 1}
                   </span>
-                  <Link href={`/products/${item.productId}`} className="shrink flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                  <Link
+                    href={`/products/${item.productId}`}
+                    className="shrink flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+                  >
                     {item.name}
                   </Link>
                   <span>${item.price}</span>
@@ -181,10 +183,6 @@ const PageOrder = () => {
           </Skeleton>
         </div>
       )}
-
-      <div>
-        <h2>Not Found</h2>
-      </div>
     </div>
   );
 };

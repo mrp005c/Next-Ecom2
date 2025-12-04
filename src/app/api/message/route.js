@@ -14,7 +14,7 @@ export async function POST(request) {
   return NextResponse.json({
     success: true,
     error: false,
-    message: "Message Sent Successful. Thank You for Contact Us!",
+    message: "Message Sent Successful. Thank You for Contacting Us!",
     // result: result,
   });
 }
