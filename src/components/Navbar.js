@@ -298,7 +298,7 @@ const Navbar = () => {
                   About
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   className="hover:bg-gray400c rounded-md transition-all active:bg-gray700c p-1"
                   // href="/#contact"
@@ -306,7 +306,7 @@ const Navbar = () => {
                 >
                   Trial
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   className="hover:bg-gray400c rounded-md transition-all active:bg-gray700c p-1"

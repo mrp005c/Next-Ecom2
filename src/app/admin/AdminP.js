@@ -438,7 +438,7 @@ const AdminPage = () => {
   if (!session)
     return (
       <div className="container mx-auto">
-        {/* <LoadingOverlay show={true} message={"Loading Page..."}/> */}
+        <LoadingOverlay show={true} message={"Loading Page..."}/>
         <SkeletonPage />
       </div>
     );
@@ -447,8 +447,9 @@ const AdminPage = () => {
       {ConfirmAlertDialog}
       <Toaster />
       <LoadingOverlay show={isloading} message={"Loading... Please Wait!"} />
+
       {/* add */}
-      <Dialog open={openAdd} onOpenChange={setOpenAdd}>
+      {openAdd && <Dialog open={openAdd} onOpenChange={setOpenAdd}>
         <DialogContent className="sm:max-w-[425px] max-h-full overflow-auto my-3">
           <form onSubmit={handleSubmit(handleSubmitAdd)}>
             <DialogHeader>
@@ -648,11 +649,11 @@ const AdminPage = () => {
             </DialogFooter>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog>}
 
       {/* edit product diagram */}
       {/* diagram container  */}
-      <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+     {openEdit && <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent className="sm:max-w-[425px] max-h-full overflow-auto">
           <form onSubmit={handleSubmit2(handleSubmitEdit)}>
             <DialogHeader>
@@ -853,7 +854,7 @@ const AdminPage = () => {
             </DialogFooter>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog>}
 
       {/* Admin Panel Header */}
       <div className="head p-3 bg-gray200c  flex-between flex-wrap">
@@ -882,9 +883,11 @@ const AdminPage = () => {
           </div>
         </div>
       </div>
+
       <div className="cont p-2 flex gap-2 flex-col sm:flex-row">
+
         {/* tabs  */}
-        <div className="tabs sm:max-w-[200px]  sm:w-full h-fit gap-1 flex-wrap flex-center sm:flex-col">
+        <div className="tabs sm:max-w-[200px] bg-gray50c  sm:w-full h-fit gap-1 flex-wrap flex-center sm:flex-col sticky top-8 z-50">
           <h3 className="flex-center sm:w-full  text-lg font-semibold bg-gray300c rounded-md">
             Quick Tabs
           </h3>
@@ -1026,7 +1029,7 @@ const AdminPage = () => {
           {/* Products tab */}
           {tab === "products" && (
             <div className="space-y-3">
-              <div className="flex-between bg-violet100c p-2 rounded-md">
+              <div className="flex-between bg-violet100c p-2 rounded-md flex-wrap">
                 <h2 className="text-2xl font-bold ">Products</h2>
                 <div className="buttons flex-center flex-wrap gap-2">
                   <Button
@@ -1063,7 +1066,7 @@ const AdminPage = () => {
                   })}
                 </div>
               ) : (
-                <SkeletonProduct className="bg-gray400c" />
+                <SkeletonProduct />
                 // <div>rakib</div>
               )}
             </div>
@@ -1254,6 +1257,7 @@ const AdminPage = () => {
               </Tabs>
             </div>
           )}
+
         </div>
       </div>
     </div>

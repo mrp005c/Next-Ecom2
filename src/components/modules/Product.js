@@ -1,81 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { Toaster } from "../ui/sonner";
-import { toast } from "sonner";
-import { fetchCart } from "@/store/cartSlice";
-import { useDispatch } from "react-redux";
-import LoadingOverlay from "./LoadingOverlay";
 
-const Product = ({ item }) => {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const dispatch = useDispatch();
-  const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(false)
 
-  const handleCartLoad = async () => {
-    if (session) {
-      const userId = session.user.id;
-      dispatch(fetchCart(userId));
-    }
-  };
-
-  const handleAddToCart = async (newCartItem) => {
-    if (!session) {
-      toast.info("Please Login First.");
-      router.push(`/login?redurl=${encodeURIComponent(pathname)}`);
-      // addToGuestCart(newCartItem)
-      return;
-    }
-    setIsLoading(true)
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    const withoutid = { ...newCartItem };
-    delete withoutid._id;
-
-    const raw = JSON.stringify({
-      email: session.user.email,
-      userId: session.user.id,
-      products: withoutid,
-    });
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-    try {
-      const add = await fetch("/api/cart", requestOptions);
-      const res = await add.json();
-      if (res.success) {
-        toast.success(res.message, {
-          description: new Date().toUTCString(),
-          action: {
-            label: "Check Out",
-            onClick: () => router.push("/order"),
-          },
-        });
-        handleCartLoad();
-      } else {
-        toast.error(res.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }finally{
-      setIsLoading(false)
-    }
-  };
+const Product = ({ item, handleAddToCart }) => {
+ 
 
   return (
     <>
-    <LoadingOverlay show={isLoading} message={'Adding to cart'}/>
-      <Toaster />
       <div className="flex flex-col max-w-[430px] w-[350px] bg-gray100c  p-2 box-border rounded-lg transition-all hover:shadow-md shadow-blue-300  hover:translate-y-[calc(-2px)] ">
         <Link
           href={`/products/${item.productId}`}

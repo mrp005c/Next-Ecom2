@@ -170,7 +170,7 @@ const ProductPage = ({ id }) => {
                     onClick={nextImage}
                     variant={"ghost"}
                     size={"icon-lg"}
-                    className={`  absolute right-2 ${
+                    className={`  absolute right-2 text-gray200c ring-1 ring-gray100c ${
                       item.image.length <= 1 ? "hidden" : ""
                     } ${styles.pnbuttons}`}
                   >
@@ -180,7 +180,7 @@ const ProductPage = ({ id }) => {
                     onClick={prevImage}
                     variant={"ghost"}
                     size={"icon-lg"}
-                    className={` absolute left-2 ${
+                    className={` absolute left-2 text-gray200c ring-1 ring-gray100c  ${
                       item.image.length <= 1 ? "hidden" : ""
                     } ${styles.pnbuttons}`}
                   >

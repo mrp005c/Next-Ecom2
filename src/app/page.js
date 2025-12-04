@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import Image from "next/image";
 import { toast } from "sonner";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/store/productSlice";
@@ -16,6 +16,8 @@ import styles from "./home.module.css";
 import { ArrowLeft, ArrowRightIcon } from "lucide-react";
 import { fetchCart } from "@/store/cartSlice";
 import { useSession } from "next-auth/react";
+import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import { useForm } from "react-hook-form";
 
 export default function Home() {
   const [email, setEmail] = useState();
@@ -24,12 +26,75 @@ export default function Home() {
   const { data: session } = useSession();
   const { items, loading, error } = useSelector((state) => state.products);
   const [homeItems, setHomeItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const scrollRef = useRef(null);
   const [scrollInfo, setScrollInfo] = useState({
     visible: 0,
     total: 0,
     left: 0,
   });
+
+  const handleCartLoad = useCallback(async () => {
+    if (session) {
+      const userId = session.user.id;
+      dispatch(fetchCart(userId));
+    }
+  }, [session, dispatch]);
+
+  const handleAddToCart = async (newCartItem) => {
+    if (!session) {
+      toast.info("Please Login First.");
+      router.push(`/login?redurl=${encodeURIComponent(pathname)}`);
+      // addToGuestCart(newCartItem)
+      return;
+    }
+    setIsLoading(true);
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    const withoutid = { ...newCartItem };
+    delete withoutid._id;
+
+    const raw = JSON.stringify({
+      email: session.user.email,
+      userId: session.user.id,
+      products: withoutid,
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+    try {
+      const add = await fetch("/api/cart", requestOptions);
+      const res = await add.json();
+      if (res.success) {
+        toast.success(res.message, {
+          description: new Date().toUTCString(),
+          action: {
+            label: "Check Out",
+            onClick: () => router.push("/order"),
+          },
+        });
+        handleCartLoad();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -95,8 +160,9 @@ export default function Home() {
     setEmail("");
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
+  const handleSendMessage = async (data) => {
+    console.log(data);
+    return;
     const formd = new FormData(e.target);
     const name_m = formd.get("name");
     const email_m = formd.get("email");
@@ -133,6 +199,7 @@ export default function Home() {
   return (
     <div className="mx-auto bg-gray400c ">
       <Toaster />
+      <LoadingOverlay show={isLoading} message={"Loading..."} />
       {/* Hero Section  */}
       <section
         id=" "
@@ -166,7 +233,10 @@ export default function Home() {
                 placeholder="Enter Email"
                 required
               />
-              <button type="submit" className="w-fit primary-btn text-background">
+              <button
+                type="submit"
+                className="w-fit primary-btn text-background"
+              >
                 Subscribe
               </button>
             </form>
@@ -252,41 +322,69 @@ export default function Home() {
               Contact Us
             </h1>
             <form
-              onSubmit={handleSendMessage}
+              onSubmit={handleSubmit(handleSendMessage)}
               className="flex flex-1 flex-col gap-3 bg-gray100c rounded-md border-2 border-gray400c p-3"
             >
               <h3 className="text-lg font-semibold">Leave A Message Here!</h3>
               <div className="grid grid-cols-1 space-y-2">
                 <Label htmlFor="name">Name </Label>
                 <Input
+                  {...register("name", {
+                    required: { value: true, message: "Name is required!" },
+                  })}
                   placeholder="Enter Your Name"
                   type="text"
-                  name="name"
                   id="name"
                   className={"rounded-md p-2  bg-gray50c"}
-                  required
                 />
+                {errors.name && (
+                  <div className="text-xs text-red500c">
+                    {errors.name.message}
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-1 space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
+                  {...register("email", {
+                    required: { value: true, message: "email is required!" },
+                    pattern: {
+                      value:
+                        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                      message: "Please enter a valid email address",
+                    },
+                  })}
                   placeholder="Enter Email"
                   type="email"
-                  name="email"
                   id="email"
                   className={"rounded-md p-2  bg-gray50c"}
-                  required
                 />
+                {errors.email && (
+                  <div className="text-xs text-red500c">
+                    {errors.email.message}
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-1 space-y-2">
                 <Label htmlFor="message">Message</Label>
                 <textarea
+                  {...register("message", {
+                    required: { value: true, message: "Message is required!" },
+                    minLength: {
+                      value: 10,
+                      message: "Minimum 10 characters required!",
+                    },
+                    maxLength: { value: 500, message: "Max 500 character!" },
+                  })}
                   placeholder="Write a message..."
-                  name="message"
                   id="message"
                   className={"bg-gray50c h-[100px] p-2 "}
-                  required
                 />
+                {errors.message && (
+                  <div className="text-xs text-red500c">
+                    {errors.message.message}
+                  </div>
+                )}
               </div>
               <Button type="submit" className={"w-fit my-3"}>
                 Send Message
@@ -335,7 +433,7 @@ export default function Home() {
               ? homeItems.map((item) => {
                   return (
                     <div key={item.productId} className="shrink-0">
-                      <Product item={item} />
+                      <Product item={item} handleAddToCart={handleAddToCart} />
                     </div>
                   );
                 })

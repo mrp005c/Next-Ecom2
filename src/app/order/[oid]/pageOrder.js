@@ -1,9 +1,11 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useParams, useSearchParams } from "next/navigation";
+import { notFound, useParams, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import NotFound from "@/app/not-found";
+import Link from "next/link";
 
 const PageOrder = () => {
   const searchParams = useSearchParams();
@@ -11,7 +13,8 @@ const PageOrder = () => {
   const { data: session } = useSession();
   const params = useParams();
   const oid = params.oid;
-  const [pay, setPay] = useState(searchParams.get('pay'))
+  const [pay, setPay] = useState(searchParams.get("pay"));
+  const [notfoundp, setNotfoundp] = useState(false);
 
   const checkout = async (formData) => {
     const payload = {
@@ -42,6 +45,7 @@ const PageOrder = () => {
         requestOptions
       );
       const res = await data.json();
+      setNotfoundp(res.error);
       if (res.success) {
         setOrder(res.result);
       }
@@ -60,13 +64,19 @@ const PageOrder = () => {
   useEffect(() => {
     if (order && pay === "yes") {
       const a = async () => {
-        
-        console.log(pay)
-        await checkout(order)
-      }
-      a()
+        console.log(pay);
+        await checkout(order);
+      };
+      a();
     }
   }, [order, pay]);
+
+  useEffect(() => {
+   if (notfoundp) {
+    return notFound();
+   }
+  }, [notfoundp])
+  
 
   return (
     <div>
@@ -129,9 +139,9 @@ const PageOrder = () => {
                   <span className="p-2 rounded-sm bg-gray100c font-bold">
                     {ind + 1}
                   </span>
-                  <span className="shrink flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                  <Link href={`/products/${item.productId}`} className="shrink flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                     {item.name}
-                  </span>
+                  </Link>
                   <span>${item.price}</span>
                 </div>
               ))}
@@ -171,6 +181,10 @@ const PageOrder = () => {
           </Skeleton>
         </div>
       )}
+
+      <div>
+        <h2>Not Found</h2>
+      </div>
     </div>
   );
 };

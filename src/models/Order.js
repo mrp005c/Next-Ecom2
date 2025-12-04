@@ -8,8 +8,8 @@ const OrderSchema = new mongoose.Schema(
     email: { type: String, required: true },
     phone: {
       type: String,
-      minLength: [11, "Must be at least 11, got {VALUE}"],
-      maxLength: 14,
+      minLength: [9, "Must be at least 9, got {VALUE}"],
+      maxLength: 15,
       required: true,
     },
     total: Number,
@@ -17,7 +17,7 @@ const OrderSchema = new mongoose.Schema(
     address: { type: String, required: true },
     products: { type: Array, min: 1 },
     status: { type: String, default: "pending" },
-    paid: {type: Boolean, default: false}
+    paid: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

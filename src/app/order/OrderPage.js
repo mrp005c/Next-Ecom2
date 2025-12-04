@@ -10,7 +10,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { useForm } from "react-hook-form";
 
 const OrderPage = () => {
@@ -132,9 +133,21 @@ const OrderPage = () => {
   }, [session, cartItems]);
 
   const handleSubmitOrder = async (data) => {
-    console.log(data);
     if (data.products.length === 0) {
-      setError('products', {message: 'At least 1 product required to Order!'})
+      setError("products", {
+        message: "At least 1 product required to Order!",
+      });
+      return;
+    }
+
+    const conf = await confirm({
+      title: "Are Your Sure? Place an order!",
+      description:
+        "To place an order tap 'Place Order', Otherwise 'Cancel'.",
+      confirmText: "Place Order",
+    });
+
+    if (!conf) {
       return;
     }
     setIsloading(true);
@@ -150,6 +163,7 @@ const OrderPage = () => {
       body: raw,
       redirect: "follow",
     };
+
     try {
       const add = await fetch("/api/orders", requestOptions);
       const res = await add.json();
@@ -181,7 +195,6 @@ const OrderPage = () => {
         } catch (error) {
           console.log(error);
         }
-        setFormData({ image: [""] });
 
         setIsloading(false);
         const conf = await confirm({
@@ -192,9 +205,9 @@ const OrderPage = () => {
         });
 
         if (conf) {
-          await checkout(data)
+          await checkout(res.result);
         }
-        reset()
+        reset();
       } else {
         toast.error(res.message);
       }
@@ -222,7 +235,7 @@ const OrderPage = () => {
               <div className="grid gap-3">
                 <Label htmlFor="name-1">Name</Label>
                 <Input
-                className={'bg-gray50c dark:bg-gray50c'}
+                  className={"bg-gray50c dark:bg-gray50c"}
                   id="name-1"
                   {...register("name", {
                     required: { value: true, message: "Name is required!" },
@@ -238,7 +251,7 @@ const OrderPage = () => {
               <div className="grid gap-3">
                 <Label htmlFor="email-1">Email</Label>
                 <Input
-                className={'bg-gray50c dark:bg-gray50c'}
+                  className={"bg-gray50c dark:bg-gray50c"}
                   id="email-1"
                   {...register("email", {
                     required: { value: true, message: "Name is required!" },
@@ -255,10 +268,12 @@ const OrderPage = () => {
                 <div className="grid gap-2">
                   <Label htmlFor="price">Phone</Label>
                   <Input
-                  className={'bg-gray50c dark:bg-gray50c'}
+                    className={"bg-gray50c dark:bg-gray50c"}
                     id="phone"
                     {...register("phone", {
                       required: { value: true, message: "Phone is required!" },
+                      minLength: { value: 9, message: "At least 9 Digit!" },
+                      maxLength: { value: 15, message: "Max length 15 Degit!" },
                     })}
                     type="text"
                   />
@@ -271,7 +286,7 @@ const OrderPage = () => {
                 <div className="grid gap-2">
                   <Label htmlFor="address">Address</Label>
                   <Input
-                  className={'bg-gray50c dark:bg-gray50c'}
+                    className={"bg-gray50c dark:bg-gray50c"}
                     id="address"
                     {...register("address", {
                       required: {
@@ -301,7 +316,7 @@ const OrderPage = () => {
                 ) : (
                   <h1>No item to show!</h1>
                 )}
-                 {errors.products && (
+                {errors.products && (
                   <div className="text-red500c text-xs ">
                     {errors.products.message}
                   </div>
@@ -316,7 +331,6 @@ const OrderPage = () => {
                     ? cartItems.reduce((a, b) => a + b.price, 0)
                     : 0}
                 </span>
-               
               </div>
             </div>
             {/* <Button  type="submit" >Save changes</Button> */}
