@@ -395,6 +395,7 @@ export default function Home() {
         id="services"
         className="min-h-[500px] p-4 pt-16 bg-gray700c bg-linear-65 from-green500c to-blue500c flex-col relative"
       >
+        <div className="w-full max-w-fit mx-auto">
         <h2 className="w-fit mx-auto py-3 text-2xl font-bold">
           Recently Added Products
         </h2>
@@ -423,7 +424,7 @@ export default function Home() {
           </Button>
           <div
             ref={scrollRef}
-            className={`flex bg-violet100c p-4 gap-3 rounded-md w-full overflow-auto items-center ${styles.hidescrollbar}`}
+            className={`flex  p-4 gap-3 rounded-md w-full overflow-auto items-center ${styles.hidescrollbar}`}
           >
             {homeItems && homeItems.length > 0
               ? homeItems.map((item) => {
@@ -452,6 +453,7 @@ export default function Home() {
           >
             Show All
           </Button>
+        </div>
         </div>
       </section>
     </div>

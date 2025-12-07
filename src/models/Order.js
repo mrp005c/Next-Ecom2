@@ -18,6 +18,7 @@ const OrderSchema = new mongoose.Schema(
     products: { type: Array, min: 1 },
     status: { type: String, default: "pending" },
     paid: { type: Boolean, default: false },
+    paidAt: Date,
   },
   { timestamps: true }
 );

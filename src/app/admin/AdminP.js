@@ -44,6 +44,7 @@ import OrderItem from "@/components/modules/OrderItem";
 
 import { useFieldArray, useForm, Controller } from "react-hook-form";
 import { MdDeleteForever } from "react-icons/md";
+import { Edit } from "lucide-react";
 
 const AdminPage = () => {
   const { data: session } = useSession();
@@ -1251,7 +1252,10 @@ const AdminPage = () => {
                   <div className="p-3 space-y-3 flex-center flex-col">
                     {pendingOrders &&
                       pendingOrders.map((item) => (
-                        <OrderItem key={item._id} item={item} />
+                          <OrderItem key={item._id} item={item}>
+                            <Button
+                            onClick={()=>console.log('Edit Order')} variant={'outline'}><Edit/></Button>
+                          </OrderItem>
                       ))}
                   </div>
                 </TabsContent>
@@ -1280,6 +1284,29 @@ const AdminPage = () => {
                   </div>
                 </TabsContent>
               </Tabs>
+            </div>
+          )}
+
+          {/* Setting tab */}
+          {tab === "settings" && (
+            <div>
+              <div className="flex-between bg-violet100c p-2 rounded-md">
+                <h1 className="text-2xl font-bold ">Settings</h1>
+                <Button
+                  size={"icon"}
+                  // onClick={() => loadMessages(true)}
+                  variant="outline"
+                  className="font-bold text-2xl"
+                >
+                  <IoReload />
+                </Button>
+              </div>
+
+              <div>
+                <h2 className="text-2xl text-center py-4 m-3 font-bold ">
+                  Not Implemented
+                </h2>
+              </div>
             </div>
           )}
         </div>

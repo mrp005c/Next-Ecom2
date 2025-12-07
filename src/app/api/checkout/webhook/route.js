@@ -3,50 +3,42 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 
+export const runtime = "nodejs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-async function buffer(req) {
-  const chunks = [];
-  for await (const chunk of req.body) {
-    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
-  }
-  return Buffer.concat(chunks);
-}
-
 export async function POST(req) {
-  const buf = await buffer(req);
-  const sig = req.headers.get("stripe-signature");
-
   let event;
+  const rawBody = await req.text(); // must get raw body
+
+  const signature = req.headers.get("stripe-signature");
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      buf,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
   } catch (err) {
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    console.error("❌ Webhook signature error", err);
+    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
-  // --- EVENT HANDLER ---
+  // Handle event types
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-
-    await connectDB();
-
-    // Get metadata
     const userId = session.metadata.userId;
     const orderId = session.metadata.orderId;
+
+    await connectDB();
 
     // Update order in MongoDB
     await Order.findByIdAndUpdate(orderId, {
       paid: true,
-      stripePaymentId: session.payment_intent,
+      status: "confirm",
+      paymentId: session.payment_intent,
       paidAt: new Date(),
     });
+
+    console.log("✅ Order updated:", session.metadata.orderId);
   }
 
-  return NextResponse.json({ received: true });
+  return new NextResponse("OK", { status: 200 });
 }

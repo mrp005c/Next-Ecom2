@@ -1,13 +1,20 @@
 import Link from "next/link";
 import React from "react";
 
-const OrderItem = ({ item }) => {
+const OrderItem = ({ item, children }) => {
   return (
     <div key={item._id} className="max-w-[1000px] w-full">
       <div className="flex flex-col ring-2 ring-gray500c rounded-md p-2 relative">
-        <Link href={`/order/${item._id}`} className="absolute top-1 right-1 p-2 bg-violet300c rounded-md text-sm text-foreground">
-          View
-        </Link>
+        <div className="absolute top-1 right-1 text-foreground flex-center gap-2">
+           <div>{children}</div>
+          <Link
+            href={`/order/${item._id}`}
+           className="p-2 bg-violet300c rounded-md text-sm "
+          >
+            View
+          </Link>
+
+        </div>
         <span className="text-ellipsis overflow-hidden text-xs rounded-md dark:bg-purple-800 bg-purple-200 p-2 max-w-fit">
           Order Id: {item._id}
         </span>
@@ -21,10 +28,7 @@ const OrderItem = ({ item }) => {
           <span>
             Total Price: $
             {item.products.length > 0 &&
-              (item.products.reduce((a, b) => a + b.price, 0).toFixed(2))
-              }
-
-           
+              item.products.reduce((a, b) => a + b.price, 0).toFixed(2)}
           </span>
           <span>Items: {item.products.length}</span>
         </div>
