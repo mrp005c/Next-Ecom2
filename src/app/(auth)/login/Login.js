@@ -14,11 +14,12 @@ import { Label } from "@/components/ui/label";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useDialog } from "@/components/modules/AlertDialog";
+import { useDialog } from "@/components/kit/AlertDialog";
 import { useEffect, useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { useForm } from "react-hook-form";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
+import SiteLogo from "@/components/kit/SiteLogo";
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -27,15 +28,14 @@ export default function LoginPage() {
   const redUrl = searchParams.get("redurl");
   const [ConfirmAlertDialog, alert] = useDialog();
   const {
-      register,
-      handleSubmit,
-      setError,
-      setFocus,
-      formState: { errors },
-    } = useForm();
+    register,
+    handleSubmit,
+    setError,
+    setFocus,
+    formState: { errors },
+  } = useForm();
 
   const handleSubmitLg = async (data) => {
-    
     const res = await signIn("credentials", {
       redirect: false,
       email: data.email,
@@ -45,22 +45,26 @@ export default function LoginPage() {
     if (!res.error) {
       router.push(`${decodeURI(redUrl)}`); // auto redirect, admin will be redirected later
     } else {
-      if (res.error == 'Invalid password') {
-        setError('password', {message: res.error})
-        setFocus('password')
+      if (res.error == "Invalid password") {
+        setError("password", { message: res.error });
+        setFocus("password");
       }
-      if (res.error == 'User not found') {
-        setError('email', {message: res.error})
-        setFocus('email')
+      if (res.error == "User not found") {
+        setError("email", { message: res.error });
+        setFocus("email");
       }
-      
-      console.log(res)
+
+      console.log(res);
       // alert({ title: res.error , description: "Try with another!"});
     }
   };
 
   useEffect(() => {
     if (status === "authenticated") {
+      if (window.opener?.location) {
+        // window.opener.location.reload();
+        window.close();
+      }
       if (redUrl) {
         return router.push(`${decodeURI(redUrl)}`);
       }
@@ -69,13 +73,14 @@ export default function LoginPage() {
   }, [status, router, redUrl]);
 
   if (status === "loading") {
-    return <LoadingOverlay show={true} message={'Loading...'}/>;
+    return <LoadingOverlay show={true} message={"Loading..."} />;
   }
   return (
-    <div className="flex-center p-4">
+    <div className="flex-center p-4 min-h-screen">
       {ConfirmAlertDialog}
       {/* <input type="email" name="" id="" /> */}
       <Card className="w-full max-w-md bg-gray100c">
+        <SiteLogo/>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
@@ -95,11 +100,13 @@ export default function LoginPage() {
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  {...register('email', {required: {value: true, message: "Email is required!"}})}
+                  {...register("email", {
+                    required: { value: true, message: "Email is required!" },
+                  })}
                   id="email"
                   type="email"
                   placeholder="Enter Username / Email"
-                  className={`${errors.email? 'border-l-8 border-l-red-500': ''}`}
+                  className={`${errors.email ? "border-l-8 border-l-red-500" : ""}`}
                 />
                 {errors.email && (
                   <div className="text-red500c text-xs ">
@@ -118,11 +125,13 @@ export default function LoginPage() {
                   </a>
                 </div>
                 <Input
-                  {...register('password', {required: {value: true, message: "Password is required!"}})}
+                  {...register("password", {
+                    required: { value: true, message: "Password is required!" },
+                  })}
                   id="password"
                   type="password"
                   placeholder="Enter Password"
-                  className={`${errors.password? 'border-l-8 border-l-red-500': ''}`}
+                  className={`${errors.password ? "border-l-8 border-l-red-500" : ""}`}
                 />
                 {errors.password && (
                   <div className="text-red500c text-xs ">

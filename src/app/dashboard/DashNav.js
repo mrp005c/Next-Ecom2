@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import { useForm } from "react-hook-form";
 
 const DashNav = () => {
@@ -71,7 +71,12 @@ const DashNav = () => {
       if (res.success) {
         toast.success(res.message);
 
-        update({name: data.name, phone: data.phone, address: data.address, image: data.image});
+        update({
+          name: data.name,
+          phone: data.phone,
+          address: data.address,
+          image: data.image,
+        });
 
         reset();
 
@@ -104,7 +109,10 @@ const DashNav = () => {
 
       {/* Edit profile dialog */}
       <Dialog open={openD} onOpenChange={setOpenD}>
-        <DialogContent className="sm:max-w-[425px] overflow-auto max-h-screen">
+        <DialogContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="sm:max-w-[425px] overflow-auto max-h-screen"
+        >
           <form onSubmit={handleSubmit(handleSubmitEdit)}>
             <DialogHeader>
               <DialogTitle>Edit Profile</DialogTitle>
@@ -200,7 +208,9 @@ const DashNav = () => {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center font-bold">
-                  <h4 className={'text-sm rounded-md bg-gray100c px-3 py-1'} >Change Password</h4>
+                  <h4 className={"text-sm rounded-md bg-gray100c px-3 py-1"}>
+                    Change Password
+                  </h4>
                 </div>
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
@@ -255,7 +265,6 @@ const DashNav = () => {
         </DialogContent>
       </Dialog>
 
-
       <div className="w-ful flex-between bg-gray100c my-2 rounded-md container mx-auto px-3 py-4 gap-3 max-[500px]:flex-col flex-wrap">
         <h1 className="text-2xl font-bold flex-center ">Dashboard</h1>
         <div className=" bg-gray50c p-2 rounded-md w-fit flex-between flex-wrap flex-col max-[500px]:flex-1 ">
@@ -270,8 +279,12 @@ const DashNav = () => {
               />
             </div>
             <div className="flex flex-col w-fit overflow-hidden text-ellipsis text-nowrap">
-              <span className="text-lg font-bold w-full overflow-hidden text-ellipsis text-wrap">{session.user.name}</span>
-              <span className="overflow-hidden text-ellipsis text-nowrap w-full box-border text-xs">{session.user.email}</span>
+              <span className="text-lg font-bold w-full overflow-hidden text-ellipsis text-wrap">
+                {session.user.name}
+              </span>
+              <span className="overflow-hidden text-ellipsis text-nowrap w-full box-border text-xs">
+                {session.user.email}
+              </span>
             </div>
           </div>
           <div className="flex-center flex-wrap gap-2">

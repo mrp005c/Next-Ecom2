@@ -8,10 +8,10 @@ import { RiCoupon4Line } from "react-icons/ri";
 import { MdManageAccounts, MdOutlinePayment, MdSettings } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCart } from "@/store/cartSlice";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OrderItem from "@/components/modules/OrderItem";
-import CartProductItem from "@/components/modules/cartProduct";
+import OrderItem from "@/components/kit/OrderItem";
+import CartProductItem from "@/components/kit/cartProduct";
 
 const DashBoardPage = () => {
   const { data: session, status } = useSession();

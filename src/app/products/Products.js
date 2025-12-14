@@ -1,7 +1,7 @@
 "use client";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
-import Product from "@/components/modules/Product";
-import SkeletonProduct from "@/components/modules/SkeletonProduct";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
+import Product from "@/components/kit/Product";
+import SkeletonProduct from "@/components/kit/SkeletonProduct";
 import { fetchCart } from "@/store/cartSlice";
 import { fetchProducts } from "@/store/productSlice";
 import { useSession } from "next-auth/react";
@@ -11,14 +11,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { usePathname, useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const ProductPage = () => {
   const dispatch = useDispatch();
-  const router = useRouter()
-  const pathname = usePathname()
+  const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const { items, loading, error } = useSelector((state) => state.products);
+  const [itemsFl, setItemsFl] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterStr, setFilterStr] = useState("");
+
+  useEffect(() => {
+    let arrays = [];
+    setItemsFl(
+      items.filter((item, index) => {
+        return item.name.toLowerCase().includes(filterStr);
+      })
+    );
+    // console.log(itemsFl)
+  }, [items, filterStr]);
 
   const loadProducts = useCallback(async () => {
     dispatch(fetchProducts());
@@ -91,18 +105,35 @@ const ProductPage = () => {
     <div className=" container mx-auto">
       <LoadingOverlay show={isLoading} message={"Adding to Cart"} />
       <Toaster />
-      <div className="flex-between bg-gray300c  px-3">
-        <h1 className="text-2xl font-bold py-4 ">All Products</h1>
-        <button
-          className="text-3xl font-bold cursor-pointer p-2 rounded-full bg-gray100c  hover:bg-gray50c active:bg-gray300c "
-          onClick={loadProducts}
-        >
-          <IoReloadCircleOutline />
-        </button>
+      <div className="flex-between bg-violet100c rounded-sm  px-3">
+        <h1 className="text-2xl font-bold py-4 ">
+          Products({itemsFl && itemsFl.length})
+        </h1>
+        <div className="flex-center gap-3">
+          <div className="flex-center bg-gray100c dark:bg-gray100c w-fit focus-within:ring-2 ring-gray400c rounded-sm transition-all px-2 ">
+            <input
+              type={"text"}
+              placeholder="Search Product"
+              value={filterStr}
+              onChange={(e) => setFilterStr(e.target.value)}
+              className={
+                "bg-gray100c dark:bg-gray100c w-48 px-2 py-1 rounded-sm outline-0"
+              }
+            />
+            <Search className="font-bold " />
+          </div>
+
+          <button
+            className="text-3xl font-bold cursor-pointer p-2 rounded-full bg-gray100c  hover:bg-gray50c active:bg-gray300c "
+            onClick={loadProducts}
+          >
+            <IoReloadCircleOutline />
+          </button>
+        </div>
       </div>
       <div className="flex-center flex-wrap gap-3 text-foreground px-3 py-2">
-        {items.length > 0 && !loading ? (
-          items.map((item) => {
+        {itemsFl.length > 0 && !loading ? (
+          itemsFl.map((item) => {
             return (
               <Product
                 key={item.productId}

@@ -9,14 +9,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/store/productSlice";
-import Product from "@/components/modules/Product";
+import Product from "@/components/kit/Product";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import styles from "./home.module.css";
 import { ArrowLeft, ArrowRightIcon } from "lucide-react";
 import { fetchCart } from "@/store/cartSlice";
 import { useSession } from "next-auth/react";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import { useForm } from "react-hook-form";
 
 export default function Home() {
@@ -162,7 +162,6 @@ export default function Home() {
   };
 
   const handleSendMessage = async (data) => {
-    
     // const formd = new FormData(e.target);
     // const name_m = formd.get("name");
     // const email_m = formd.get("email");
@@ -396,64 +395,70 @@ export default function Home() {
         className="min-h-[500px] p-4 pt-16 bg-gray700c bg-linear-65 from-green500c to-blue500c flex-col relative"
       >
         <div className="w-full max-w-fit mx-auto">
-        <h2 className="w-fit mx-auto py-3 text-2xl font-bold">
-          Recently Added Products
-        </h2>
-        <div className="relative items-center flex">
-          <Button
-            variant={"outline"}
-            size={"icon-lg"}
-            onClick={scrollLeft}
-            className={`absolute left-2 z-30 ${
-              scrollInfo.left === 0 ? "hidden" : ""
-            }`}
-          >
-            <ArrowLeft />
-          </Button>
-          <Button
-            variant={"outline"}
-            size={"icon-lg"}
-            onClick={scrollRight}
-            className={`absolute right-2 z-30 ${
-              scrollInfo.left > scrollInfo.total - scrollInfo.visible - 10
-                ? "hidden "
-                : ""
-            }`}
-          >
-            <ArrowRightIcon />
-          </Button>
-          <div
-            ref={scrollRef}
-            className={`flex  p-4 gap-3 rounded-md w-full overflow-auto items-center ${styles.hidescrollbar}`}
-          >
-            {homeItems && homeItems.length > 0
-              ? homeItems.map((item) => {
-                  return (
-                    <div key={item.productId} className="shrink-0">
-                      <Product item={item} handleAddToCart={handleAddToCart} />
+          <h2 className="w-fit mx-auto py-3 text-2xl font-bold">
+            Recently Added Products
+          </h2>
+          <div className="relative items-center flex">
+            <Button
+              variant={"outline"}
+              size={"icon-lg"}
+              onClick={scrollLeft}
+              className={`absolute left-2 z-30 ${
+                scrollInfo.left === 0 ? "hidden" : ""
+              }`}
+            >
+              <ArrowLeft />
+            </Button>
+            <Button
+              variant={"outline"}
+              size={"icon-lg"}
+              onClick={scrollRight}
+              className={`absolute right-2 z-30 ${
+                scrollInfo.left > scrollInfo.total - scrollInfo.visible - 10
+                  ? "hidden "
+                  : ""
+              }`}
+            >
+              <ArrowRightIcon />
+            </Button>
+            <div
+              ref={scrollRef}
+              className={`flex  p-4 gap-3 rounded-md w-full overflow-auto items-center ${styles.hidescrollbar}`}
+            >
+              {homeItems && homeItems.length > 0
+                ? homeItems.map((item) => {
+                    return (
+                      <div key={item.productId} className="shrink-0">
+                        <Product
+                          item={item}
+                          handleAddToCart={handleAddToCart}
+                        />
+                      </div>
+                    );
+                  })
+                : Array.from("rakib").map((e, ind) => (
+                    <div
+                      key={ind}
+                      className="flex flex-col space-y-3 w-[350px]"
+                    >
+                      <Skeleton className="h-[225px] w-[350px] bg-gray200c rounded-xl" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-6 w-3/4  bg-gray200c" />
+                        <Skeleton className="h-6 w-3/5  bg-gray200c" />
+                      </div>
                     </div>
-                  );
-                })
-              : Array.from("rakib").map((e, ind) => (
-                  <div key={ind} className="flex flex-col space-y-3 w-[350px]">
-                    <Skeleton className="h-[225px] w-[350px] bg-gray200c rounded-xl" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-6 w-3/4  bg-gray200c" />
-                      <Skeleton className="h-6 w-3/5  bg-gray200c" />
-                    </div>
-                  </div>
-                ))}
+                  ))}
+            </div>
           </div>
-        </div>
-        <div className="flex-center">
-          <Button
-            onClick={() => router.push("/products")}
-            variant={"outline"}
-            className={"w-fit mx-auto"}
-          >
-            Show All
-          </Button>
-        </div>
+          <div className="flex-center">
+            <Button
+              onClick={() => router.push("/products")}
+              variant={"outline"}
+              className={"w-fit mx-auto"}
+            >
+              Show All
+            </Button>
+          </div>
         </div>
       </section>
     </div>

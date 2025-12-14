@@ -28,23 +28,24 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { IoAdd, IoAddCircle, IoReload } from "react-icons/io5";
-import SkeletonProduct from "@/components/modules/SkeletonProduct";
-import SkeletonPage from "@/components/modules/SkeletonPage";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
-import UserControl from "@/components/modules/UserControl";
+import SkeletonProduct from "@/components/kit/SkeletonProduct";
+import SkeletonPage from "@/components/kit/SkeletonPage";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
+import UserControl from "@/components/kit/UserControl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/store/productSlice";
 // Messages tab
-import MessageModule from "@/components/modules/MessageModule";
-import { useDialog } from "@/components/modules/AlertDialog";
+import MessageModule from "@/components/kit/MessageModule";
+import { useDialog } from "@/components/kit/AlertDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OrderItem from "@/components/modules/OrderItem";
+import OrderItem from "@/components/kit/OrderItem";
 
 import { useFieldArray, useForm, Controller } from "react-hook-form";
 import { MdDelete, MdDeleteForever, MdEdit } from "react-icons/md";
-import { Edit } from "lucide-react";
-import Product from "@/components/modules/Product";
+import { Edit, Search } from "lucide-react";
+import Product from "@/components/kit/Product";
+import { RxCross2 } from "react-icons/rx";
 
 const AdminPage = () => {
   const { data: session } = useSession();
@@ -71,6 +72,17 @@ const AdminPage = () => {
   const [confirmedOrders, setConfirmedOrders] = useState([]);
   const [deliveredOrders, setDeliveredOrders] = useState([]);
   const [ConfirmAlertDialog, alert, confirm] = useDialog();
+  const [filterStr, setFilterStr] = useState("");
+  const [itemsFl, setItemsFl] = useState([]);
+  useEffect(() => {
+    let arrays = [];
+    setItemsFl(
+      items.filter((item, index) => {
+        return item.name.toLowerCase().includes(filterStr);
+      })
+    );
+    // console.log(itemsFl)
+  }, [items, filterStr]);
 
   // form
 
@@ -448,440 +460,454 @@ const AdminPage = () => {
       {ConfirmAlertDialog}
       <Toaster />
       <LoadingOverlay show={isloading} message={"Loading... Please Wait!"} />
-
-      {/* add */}
-      {openAdd && (
-        <Dialog open={openAdd} onOpenChange={setOpenAdd}>
-          <DialogContent className="sm:max-w-[425px] max-h-full overflow-auto my-3">
-            <form onSubmit={handleSubmit(handleSubmitAdd)}>
-              <DialogHeader>
-                <DialogTitle>Add Product</DialogTitle>
-                <DialogDescription>
-                  Make changes to your productId here. Click save when
-                  you&apos;re done.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="name-1">Name</Label>
-                  <Input
-                    id="name-1"
-                    {...register("name", {
-                      required: { value: true, message: "Name is required!" },
-                    })}
-                    placeholder="Product Name"
-                  />
-                  {errors.name && (
-                    <div className="text-red500c text-xs ">
-                      {errors.name.message}
-                    </div>
-                  )}
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="image">Image</Label>
-                  {fields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2 my-2">
-                      <Input
-                        {...register(`image.${index}`)}
-                        placeholder="Image URL"
-                      />
-
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size={"icon-lg"}
-                        onClick={() => remove(index)}
-                      >
-                        <MdDeleteForever />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    variant={"outline"}
-                    // size={"icon-lg"}
-                    type="button"
-                    className={"flex-center w-fit"}
-                    onClick={() => append("")}
-                  >
-                    <IoAddCircle />
-                    Add Image
-                  </Button>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="productId">Product Id</Label>
-                  <Input
-                    {...register("productId", {
-                      required: {
-                        value: true,
-                        message: "Product is required!",
-                      },
-                    })}
-                    id="productId"
-                    type="text"
-                    placeholder="Enter Product Id"
-                  />
-                  {errors.productId && (
-                    <div className="text-red500c text-xs ">
-                      {errors.productId.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="price">Price</Label>
+      <div>
+        {/* add */}
+        {openAdd && (
+          <Dialog open={openAdd} onOpenChange={setOpenAdd}>
+            <DialogContent
+              // onOpenAutoFocus={(e) => e.preventDefault()}
+              className="sm:max-w-[425px] max-h-full overflow-auto my-3"
+            >
+              <form onSubmit={handleSubmit(handleSubmitAdd)}>
+                <DialogHeader>
+                  <DialogTitle>Add Product</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your productId here. Click save when
+                    you&apos;re done.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div className="grid gap-3">
+                    <Label htmlFor="name-1">Name</Label>
                     <Input
-                      {...register("price", {
+                      id="name-1"
+                      {...register("name", {
+                        required: { value: true, message: "Name is required!" },
+                      })}
+                      placeholder="Product Name"
+                    />
+                    {errors.name && (
+                      <div className="text-red500c text-xs ">
+                        {errors.name.message}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="image">Image</Label>
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2 my-2">
+                        <Input
+                          {...register(`image.${index}`)}
+                          placeholder="Image URL"
+                        />
+
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size={"icon-lg"}
+                          onClick={() => remove(index)}
+                        >
+                          <MdDeleteForever />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant={"outline"}
+                      // size={"icon-lg"}
+                      type="button"
+                      className={"flex-center w-fit"}
+                      onClick={() => append("")}
+                    >
+                      <IoAddCircle />
+                      Add Image
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="productId">Product Id</Label>
+                    <Input
+                      {...register("productId", {
                         required: {
                           value: true,
-                          message: "Price is required!",
+                          message: "Product is required!",
                         },
                       })}
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter Product Price"
+                      id="productId"
+                      type="text"
+                      placeholder="Enter Product Id"
                     />
-                    {errors.price && (
+                    {errors.productId && (
                       <div className="text-red500c text-xs ">
-                        {errors.price.message}
+                        {errors.productId.message}
                       </div>
                     )}
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="ratings">Ratings</Label>
-                    <Input
-                      {...register("rating", {
-                        max: { value: 5, message: "Max ratings rating is 5!" },
-                      })}
-                      placeholder="Enter Ratings"
-                      type="number"
-                      step="0.01"
-                      id="ratings"
-                    />
-                    {errors.rating && (
-                      <div className="text-red500c text-xs ">
-                        {errors.rating.message}
-                      </div>
-                    )}
-                  </div>
-                </div>
 
-                <div className="flex-between flex-wrap gap-2">
-                  <div className="flex-center">
-                    <Label htmlFor="instock">In Stock</Label>
-                    <input
-                      {...register("inStock")}
-                      className="h-8 rounded-sm w-5 "
-                      id="instock"
-                      type="checkbox"
-                    />
-                  </div>
                   <div className="flex gap-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Controller
-                      name="category"
-                      control={control}
-                      defaultValue={"uncategorized"}
-                      render={({ field }) => (
-                        <Select
-                          // {...register("category")}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          placeholder="Category"
-                          id="category"
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Category</SelectLabel>
-                              <SelectItem value="uncategorized">
-                                Uncategorized
-                              </SelectItem>
-                              <SelectItem value="accessories">
-                                Accessories
-                              </SelectItem>
-                              <SelectItem value="electronics">
-                                Electronics
-                              </SelectItem>
-                              <SelectItem value="fashion">Fashion</SelectItem>
-                              <SelectItem value="home-appliances">
-                                Home Appliances
-                              </SelectItem>
-                              <SelectItem value="beauty-health">
-                                Beauty & Health
-                              </SelectItem>
-                              <SelectItem value="sports-outdoors">
-                                Sports & Outdoors
-                              </SelectItem>
-                              <SelectItem value="toys-games">
-                                Toys & Games
-                              </SelectItem>
-                              <SelectItem value="groceries">
-                                Groceries
-                              </SelectItem>
-                              <SelectItem value="books">Books</SelectItem>
-                              <SelectItem value="furniture">
-                                Furniture
-                              </SelectItem>
-                              <SelectItem value="mobile">
-                                Mobile Phones
-                              </SelectItem>
-                              <SelectItem value="computers">
-                                Computers & Laptops
-                              </SelectItem>
-                              <SelectItem value="watches">Watches</SelectItem>
-                              <SelectItem value="shoes">Shoes</SelectItem>
-                              <SelectItem value="bags">Bags</SelectItem>
-                              <SelectItem value="camera">
-                                Cameras & Photography
-                              </SelectItem>
-                              <SelectItem value="kitchen">
-                                Kitchen Essentials
-                              </SelectItem>
-                              <SelectItem value="automotive">
-                                Automotive
-                              </SelectItem>
-                              <SelectItem value="gaming">Gaming</SelectItem>
-                              <SelectItem value="pets">Pet Supplies</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                    <div className="grid gap-2">
+                      <Label htmlFor="price">Price</Label>
+                      <Input
+                        {...register("price", {
+                          required: {
+                            value: true,
+                            message: "Price is required!",
+                          },
+                        })}
+                        id="price"
+                        type="number"
+                        step="0.01"
+                        placeholder="Enter Product Price"
+                      />
+                      {errors.price && (
+                        <div className="text-red500c text-xs ">
+                          {errors.price.message}
+                        </div>
                       )}
-                    />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="ratings">Ratings</Label>
+                      <Input
+                        {...register("rating", {
+                          max: {
+                            value: 5,
+                            message: "Max ratings rating is 5!",
+                          },
+                        })}
+                        placeholder="Enter Ratings"
+                        type="number"
+                        step="0.01"
+                        id="ratings"
+                      />
+                      {errors.rating && (
+                        <div className="text-red500c text-xs ">
+                          {errors.rating.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex-between flex-wrap gap-2">
+                    <div className="flex-center">
+                      <Label htmlFor="instock">In Stock</Label>
+                      <input
+                        {...register("inStock")}
+                        className="h-8 rounded-sm w-5 "
+                        id="instock"
+                        type="checkbox"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Controller
+                        name="category"
+                        control={control}
+                        defaultValue={"uncategorized"}
+                        render={({ field }) => (
+                          <Select
+                            // {...register("category")}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            placeholder="Category"
+                            id="category"
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Category</SelectLabel>
+                                <SelectItem value="uncategorized">
+                                  Uncategorized
+                                </SelectItem>
+                                <SelectItem value="accessories">
+                                  Accessories
+                                </SelectItem>
+                                <SelectItem value="electronics">
+                                  Electronics
+                                </SelectItem>
+                                <SelectItem value="fashion">Fashion</SelectItem>
+                                <SelectItem value="home-appliances">
+                                  Home Appliances
+                                </SelectItem>
+                                <SelectItem value="beauty-health">
+                                  Beauty & Health
+                                </SelectItem>
+                                <SelectItem value="sports-outdoors">
+                                  Sports & Outdoors
+                                </SelectItem>
+                                <SelectItem value="toys-games">
+                                  Toys & Games
+                                </SelectItem>
+                                <SelectItem value="groceries">
+                                  Groceries
+                                </SelectItem>
+                                <SelectItem value="books">Books</SelectItem>
+                                <SelectItem value="furniture">
+                                  Furniture
+                                </SelectItem>
+                                <SelectItem value="mobile">
+                                  Mobile Phones
+                                </SelectItem>
+                                <SelectItem value="computers">
+                                  Computers & Laptops
+                                </SelectItem>
+                                <SelectItem value="watches">Watches</SelectItem>
+                                <SelectItem value="shoes">Shoes</SelectItem>
+                                <SelectItem value="bags">Bags</SelectItem>
+                                <SelectItem value="camera">
+                                  Cameras & Photography
+                                </SelectItem>
+                                <SelectItem value="kitchen">
+                                  Kitchen Essentials
+                                </SelectItem>
+                                <SelectItem value="automotive">
+                                  Automotive
+                                </SelectItem>
+                                <SelectItem value="gaming">Gaming</SelectItem>
+                                <SelectItem value="pets">
+                                  Pet Supplies
+                                </SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save changes</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Save changes</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
 
-      {/* edit product diagram */}
-      {/* diagram container  */}
-      {openEdit && (
-        <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-          <DialogContent className="sm:max-w-[425px] max-h-full overflow-auto">
-            <form onSubmit={handleSubmit2(handleSubmitEdit)}>
-              <DialogHeader>
-                <DialogTitle>Edit Product</DialogTitle>
-                <DialogDescription>
-                  Make changes to your productId here. Click save when
-                  you&apos;re done.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="name-1">Name</Label>
-                  <Input
-                    id="name-1"
-                    {...register2("name", {
-                      required: { value: true, message: "Name is required!" },
-                    })}
-                    placeholder="Product Name"
-                  />
-                  {errors2.name && (
-                    <div className="text-red500c text-xs ">
-                      {errors2.name.message}
-                    </div>
-                  )}
-                </div>
-                <div className="grid gap-3">
-                  <Label htmlFor="image">Image</Label>
-                  {fields2.map((field, index) => (
-                    <div key={field.id} className="flex gap-2 my-2">
-                      <Input
-                        {...register2(`image.${index}`)}
-                        placeholder="Image URL"
-                      />
-
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size={"icon-lg"}
-                        onClick={() => remove2(index)}
-                      >
-                        <MdDeleteForever />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    variant={"outline"}
-                    // size={"icon"}
-                    type="button"
-                    className={"flex-center w-fit"}
-                    onClick={() => append2("")}
-                  >
-                    <IoAddCircle /> Add Image
-                  </Button>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="productId">Product Id</Label>
-                  <Input
-                    {...register2("productId", {
-                      required: {
-                        value: true,
-                        message: "Pfoduct is required!",
-                      },
-                    })}
-                    id="productId"
-                    type="text"
-                    placeholder="Enter Product Id"
-                  />
-                  {errors2.productId && (
-                    <div className="text-red500c text-xs ">
-                      {errors2.productId.message}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  <div className="grid gap-2">
-                    <Label htmlFor="price">Price</Label>
+        {/* edit product diagram */}
+        {/* diagram container  */}
+        {openEdit && (
+          <Dialog open={openEdit} onOpenChange={setOpenEdit}>
+            <DialogContent
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              className="sm:max-w-[425px] max-h-full overflow-auto"
+            >
+              <form onSubmit={handleSubmit2(handleSubmitEdit)}>
+                <DialogHeader>
+                  <DialogTitle>Edit Product</DialogTitle>
+                  <DialogDescription>
+                    Make changes to your productId here. Click save when
+                    you&apos;re done.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <div className="grid gap-3">
+                    <Label htmlFor="name-1">Name</Label>
                     <Input
-                      {...register2("price", {
+                      id="name-1"
+                      {...register2("name", {
+                        required: { value: true, message: "Name is required!" },
+                      })}
+                      placeholder="Product Name"
+                    />
+                    {errors2.name && (
+                      <div className="text-red500c text-xs ">
+                        {errors2.name.message}
+                      </div>
+                    )}
+                  </div>
+                  <div className="grid gap-3">
+                    <Label htmlFor="image">Image</Label>
+                    {fields2.map((field, index) => (
+                      <div key={field.id} className="flex gap-2 my-2">
+                        <Input
+                          {...register2(`image.${index}`)}
+                          placeholder="Image URL"
+                        />
+
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size={"icon-lg"}
+                          onClick={() => remove2(index)}
+                        >
+                          <MdDeleteForever />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant={"outline"}
+                      // size={"icon"}
+                      type="button"
+                      className={"flex-center w-fit"}
+                      onClick={() => append2("")}
+                    >
+                      <IoAddCircle /> Add Image
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="productId">Product Id</Label>
+                    <Input
+                      {...register2("productId", {
                         required: {
                           value: true,
-                          message: "Price is required!",
+                          message: "Pfoduct is required!",
                         },
                       })}
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter Product Price"
+                      id="productId"
+                      type="text"
+                      placeholder="Enter Product Id"
                     />
-                    {errors2.price && (
+                    {errors2.productId && (
                       <div className="text-red500c text-xs ">
-                        {errors2.price.message}
+                        {errors2.productId.message}
                       </div>
                     )}
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="ratings">Ratings</Label>
-                    <Input
-                      {...register2("rating", {
-                        max: { value: 5, message: "Max ratings rate is 5!" },
-                      })}
-                      placeholder="Enter Ratings"
-                      type="number"
-                      step="0.01"
-                      id="ratings"
-                    />
-                    {errors2.rating && (
-                      <div className="text-red500c text-xs ">
-                        {errors2.rating.message}
-                      </div>
-                    )}
-                  </div>
-                </div>
 
-                <div className="flex-between flex-wrap gap-2">
-                  <div className="flex-center">
-                    <Label htmlFor="instock">In Stock</Label>
-                    <input
-                      {...register2("inStock")}
-                      className="h-8 rounded-sm w-5 "
-                      id="instock"
-                      type="checkbox"
-                    />
-                  </div>
                   <div className="flex gap-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Controller
-                      name="category"
-                      control={control2}
-                      defaultValue={"uncategorized"}
-                      render={({ field }) => (
-                        <Select
-                          // {...register("category")}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          placeholder="Category"
-                          id="category"
-                        >
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Category</SelectLabel>
-                              <SelectItem value="uncategorized">
-                                Uncategorized
-                              </SelectItem>
-                              <SelectItem value="accessories">
-                                Accessories
-                              </SelectItem>
-                              <SelectItem value="electronics">
-                                Electronics
-                              </SelectItem>
-                              <SelectItem value="fashion">Fashion</SelectItem>
-                              <SelectItem value="home-appliances">
-                                Home Appliances
-                              </SelectItem>
-                              <SelectItem value="beauty-health">
-                                Beauty & Health
-                              </SelectItem>
-                              <SelectItem value="sports-outdoors">
-                                Sports & Outdoors
-                              </SelectItem>
-                              <SelectItem value="toys-games">
-                                Toys & Games
-                              </SelectItem>
-                              <SelectItem value="groceries">
-                                Groceries
-                              </SelectItem>
-                              <SelectItem value="books">Books</SelectItem>
-                              <SelectItem value="furniture">
-                                Furniture
-                              </SelectItem>
-                              <SelectItem value="mobile">
-                                Mobile Phones
-                              </SelectItem>
-                              <SelectItem value="computers">
-                                Computers & Laptops
-                              </SelectItem>
-                              <SelectItem value="watches">Watches</SelectItem>
-                              <SelectItem value="shoes">Shoes</SelectItem>
-                              <SelectItem value="bags">Bags</SelectItem>
-                              <SelectItem value="camera">
-                                Cameras & Photography
-                              </SelectItem>
-                              <SelectItem value="kitchen">
-                                Kitchen Essentials
-                              </SelectItem>
-                              <SelectItem value="automotive">
-                                Automotive
-                              </SelectItem>
-                              <SelectItem value="gaming">Gaming</SelectItem>
-                              <SelectItem value="pets">Pet Supplies</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                    <div className="grid gap-2">
+                      <Label htmlFor="price">Price</Label>
+                      <Input
+                        {...register2("price", {
+                          required: {
+                            value: true,
+                            message: "Price is required!",
+                          },
+                        })}
+                        id="price"
+                        type="number"
+                        step="0.01"
+                        placeholder="Enter Product Price"
+                      />
+                      {errors2.price && (
+                        <div className="text-red500c text-xs ">
+                          {errors2.price.message}
+                        </div>
                       )}
-                    />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="ratings">Ratings</Label>
+                      <Input
+                        {...register2("rating", {
+                          max: { value: 5, message: "Max ratings rate is 5!" },
+                        })}
+                        placeholder="Enter Ratings"
+                        type="number"
+                        step="0.01"
+                        id="ratings"
+                      />
+                      {errors2.rating && (
+                        <div className="text-red500c text-xs ">
+                          {errors2.rating.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex-between flex-wrap gap-2">
+                    <div className="flex-center">
+                      <Label htmlFor="instock">In Stock</Label>
+                      <input
+                        {...register2("inStock")}
+                        className="h-8 rounded-sm w-5 "
+                        id="instock"
+                        type="checkbox"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Controller
+                        name="category"
+                        control={control2}
+                        defaultValue={"uncategorized"}
+                        render={({ field }) => (
+                          <Select
+                            // {...register("category")}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            placeholder="Category"
+                            id="category"
+                          >
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Category</SelectLabel>
+                                <SelectItem value="uncategorized">
+                                  Uncategorized
+                                </SelectItem>
+                                <SelectItem value="accessories">
+                                  Accessories
+                                </SelectItem>
+                                <SelectItem value="electronics">
+                                  Electronics
+                                </SelectItem>
+                                <SelectItem value="fashion">Fashion</SelectItem>
+                                <SelectItem value="home-appliances">
+                                  Home Appliances
+                                </SelectItem>
+                                <SelectItem value="beauty-health">
+                                  Beauty & Health
+                                </SelectItem>
+                                <SelectItem value="sports-outdoors">
+                                  Sports & Outdoors
+                                </SelectItem>
+                                <SelectItem value="toys-games">
+                                  Toys & Games
+                                </SelectItem>
+                                <SelectItem value="groceries">
+                                  Groceries
+                                </SelectItem>
+                                <SelectItem value="books">Books</SelectItem>
+                                <SelectItem value="furniture">
+                                  Furniture
+                                </SelectItem>
+                                <SelectItem value="mobile">
+                                  Mobile Phones
+                                </SelectItem>
+                                <SelectItem value="computers">
+                                  Computers & Laptops
+                                </SelectItem>
+                                <SelectItem value="watches">Watches</SelectItem>
+                                <SelectItem value="shoes">Shoes</SelectItem>
+                                <SelectItem value="bags">Bags</SelectItem>
+                                <SelectItem value="camera">
+                                  Cameras & Photography
+                                </SelectItem>
+                                <SelectItem value="kitchen">
+                                  Kitchen Essentials
+                                </SelectItem>
+                                <SelectItem value="automotive">
+                                  Automotive
+                                </SelectItem>
+                                <SelectItem value="gaming">Gaming</SelectItem>
+                                <SelectItem value="pets">
+                                  Pet Supplies
+                                </SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save changes</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      )}
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Save changes</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
 
       {/* Admin Panel Header */}
       <div className="head p-3 bg-gray200c  flex-between flex-wrap">
@@ -1056,8 +1082,39 @@ const AdminPage = () => {
           {tab === "products" && (
             <div className="space-y-3">
               <div className="flex-between bg-violet100c p-2 rounded-md flex-wrap">
-                <h2 className="text-2xl font-bold ">Products</h2>
+                <h2 className="text-2xl font-bold ">
+                  Products({itemsFl && itemsFl.length})
+                </h2>
                 <div className="buttons flex-center flex-wrap gap-2">
+                  <div className="flex-center max-w-48 bg-gray100c dark:bg-gray100c w-fit focus-within:ring-2 ring-gray400c rounded-sm transition-all px-2 ">
+                    <input
+                      type={"text"}
+                      placeholder="Search Product"
+                      value={filterStr}
+                      onChange={(e) => setFilterStr(e.target.value)}
+                      className={
+                        "bg-gray100c dark:bg-gray100c w-full px-2 py-1 rounded-sm outline-0"
+                      }
+                    />
+                    {filterStr.length > 0 ? (
+                      <Button
+                        className={"rounded-full "}
+                        size={"icon"}
+                        variant={"ghost"}
+                        onClick={() => setFilterStr("")}
+                      >
+                        <RxCross2 />
+                      </Button>
+                    ) : (
+                      <Button
+                        className={"rounded-full "}
+                        size={"icon"}
+                        variant={"ghost"}
+                      >
+                        <Search className="font-bold " />
+                      </Button>
+                    )}
+                  </div>
                   <Button
                     onClick={() => {
                       setOpenAdd(true);
@@ -1077,9 +1134,9 @@ const AdminPage = () => {
                   </Button>
                 </div>
               </div>
-              {items && !loading ? (
+              {itemsFl && !loading ? (
                 <div className="flex justify-center  items-stretch flex-wrap gap-3 text-foreground px-3 box-border py-2">
-                  {items.map((item) => {
+                  {itemsFl.map((item) => {
                     return (
                       <Product
                         showButton={false}

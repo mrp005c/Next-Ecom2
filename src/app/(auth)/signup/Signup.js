@@ -15,11 +15,12 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
-import { useDialog } from "@/components/modules/AlertDialog";
+import { useDialog } from "@/components/kit/AlertDialog";
 import Link from "next/link";
 
 import { useForm, SubmitHandler } from "react-hook-form";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
+import SiteLogo from "@/components/kit/SiteLogo";
 
 export default function SignInPage() {
   const { status } = useSession();
@@ -37,7 +38,7 @@ export default function SignInPage() {
   const handleSubmitSign = async (data) => {
     setIsLoading(true);
     delete data.cpassword;
-    
+
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     const raw = JSON.stringify(data);
@@ -70,10 +71,11 @@ export default function SignInPage() {
   }, [status, router]);
 
   return (
-    <div className="flex-center p-2">
-      <LoadingOverlay show={isLoading} message={"Singing In... Wait!"}/>
+    <div className="flex-center p-2 min-h-screen">
+      <LoadingOverlay show={isLoading} message={"Singing In... Wait!"} />
       {ConfirmAlertDialog}
       <Card className="w-full max-w-md bg-gray100c">
+        <SiteLogo/>
         <CardHeader>
           <CardTitle>Sign Up your account</CardTitle>
           <CardDescription>
@@ -109,7 +111,12 @@ export default function SignInPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="image">Image</Label>
-                <Input {...register("image")} placeholder="Image Url" id="image" type="text" />
+                <Input
+                  {...register("image")}
+                  placeholder="Image Url"
+                  id="image"
+                  type="text"
+                />
                 {errors.image && (
                   <div className="text-red500c text-xs ">
                     {errors.image.message}

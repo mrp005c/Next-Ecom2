@@ -5,17 +5,29 @@ export async function proxy(req) {
   const token = await getToken({ req });
   const path = req.nextUrl.pathname;
 
+  console.log("so going")
+  if (token && (path.startsWith("/login") || path.startsWith("/signup"))) {
+    return NextResponse.redirect(
+        new URL(`/`, req.url)
+      );
+  }
   // 🔒 Protect admin pages
   if (path.startsWith("/admin")) {
     if (!token || token.role !== "admin") {
-      return NextResponse.redirect(new URL("/login", req.url));
+      const redirect = "/admin";
+      return NextResponse.redirect(
+        new URL(`/login?redurl=${redirect}`, req.url)
+      );
     }
   }
 
   // 🔒 Protect user dashboard
   if (path.startsWith("/dashboard")) {
     if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      const redirect = "/dashboard";
+      return NextResponse.redirect(
+        new URL(`/login?redurl=${encodeURI(redirect)}`, req.url)
+      );
     }
   }
 }

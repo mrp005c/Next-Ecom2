@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SessoinWrapper from "@/components/SessoinWrapper";
 import { connection } from "next/server";
-import { ThemeProvider } from "@/components/modules/themeProvider";
+import { ThemeProvider } from "@/components/kit/themeProvider";
 import StoreWrapper from "@/components/StoreWrapper";
 
 const geistSans = Geist({
@@ -14,7 +14,7 @@ const geistSans = Geist({
 
 const poppInsfont = Poppins({
   variable: "--font-popp-ins",
-  weight: ['400', '500', '600', '700'],
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 

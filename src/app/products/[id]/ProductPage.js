@@ -14,7 +14,7 @@ import { useSession } from "next-auth/react";
 import { fetchCart } from "@/store/cartSlice";
 // css
 import styles from "./id.module.css";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
 
 const ProductPage = ({ id }) => {
   // const params = useParams();
@@ -61,7 +61,7 @@ const ProductPage = ({ id }) => {
     } catch (error) {
       console.log(error);
     }
-  },[id]);
+  }, [id]);
 
   useEffect(() => {
     const a = async () => {

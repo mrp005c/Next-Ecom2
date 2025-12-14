@@ -19,17 +19,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IoMenuOutline, IoReload } from "react-icons/io5";
-import { Moon, Sun } from "lucide-react";
+import { LucideSunMoon, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 import AdminHeader from "./AdminHeader";
 import { FaCartPlus } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
 import { useDispatch, useSelector } from "react-redux";
-import CartProductItem from "./modules/cartProduct";
+import CartProductItem from "./kit/cartProduct";
 import { fetchCart } from "@/store/cartSlice";
 import { toast } from "sonner";
 import { Toaster } from "./ui/sonner";
+import AuthLink from "./kit/AuthLogin";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -37,7 +38,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { cartItems, loading, error } = useSelector((state) => state.cart);
   const { data: session, status } = useSession();
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const cartMenu = useRef(null);
 
   const handleCartLoad = useCallback(async () => {
@@ -52,7 +53,7 @@ const Navbar = () => {
   }, [handleCartLoad]);
 
   useEffect(() => {
-    cartMenu.current.classList.remove("open");
+    cartMenu.current?.classList.remove("open");
   }, [pathname]);
 
   // cart remove
@@ -91,22 +92,53 @@ const Navbar = () => {
       console.log(error);
     }
   };
+  if (pathname.startsWith("/login") || pathname.startsWith("/signup")) {
+    return;
+  }
 
   return (
     <header className="flex-center flex-wrap bg-gray200c box-border sticky z-40 top-0 w-full text-foreground">
-      <AdminHeader />
+      <AdminHeader>
+        <div className="flex-center gap-3 py-1">
+          {theme === "light" ? (
+            <Button
+              className={"rounded-full"}
+              variant={"outline"}
+              size={"icon-lg"}
+              onClick={() => setTheme("dark")}
+            >
+              <Sun />
+            </Button>
+          ) : (
+            <Button
+              className={"rounded-full"}
+              variant={"outline"}
+              size={"icon-lg"}
+              onClick={() => setTheme("light")}
+            >
+              <Moon />
+            </Button>
+          )}
+
+          {/* <Button className={""} variant={"outline"} onClick={() => setTheme("system")}><LucideSunMoon/></Button> */}
+        </div>
+      </AdminHeader>
       <Toaster />
       {!pathname.toString().startsWith("/admin") && (
         <div className="container mx-auto flex-center px-2 py-3 box-border z-40 relative">
           {/* main nav  */}
           <div className="w-full flex-between ">
-            <Link href="/" className="relative h-12 w-[130px]">
+            <Link
+              href="/"
+              className="relative h-12 max-[500px]:w-[50px] w-[150px]"
+            >
               <Image
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 loading="eager"
                 src="/ecom.png"
                 alt="sitelogo"
+                className="w-12 overflow-hidden object-cover object-left"
               />
             </Link>
             <div className="buttons flex-center gap-2">
@@ -197,9 +229,12 @@ const Navbar = () => {
                 </div>
               ) : (
                 <>
-                  <Link href="/login" className="primary-btn">
+                  <AuthLink className={"primary-btn"} href={"/login"}>
+                    Login
+                  </AuthLink>
+                  {/* <Link href="/login" className="primary-btn">
                     Log In
-                  </Link>{" "}
+                  </Link> */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

@@ -1,7 +1,7 @@
 "use client";
-import CartProductItem from "@/components/modules/cartProduct";
-import { useDialog } from "@/components/modules/AlertDialog";
-import LoadingOverlay from "@/components/modules/LoadingOverlay";
+import CartProductItem from "@/components/kit/cartProduct";
+import { useDialog } from "@/components/kit/AlertDialog";
+import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -142,8 +142,7 @@ const OrderPage = () => {
 
     const conf = await confirm({
       title: "Are Your Sure? Place an order!",
-      description:
-        "To place an order tap 'Place Order', Otherwise 'Cancel'.",
+      description: "To place an order tap 'Place Order', Otherwise 'Cancel'.",
       confirmText: "Place Order",
     });
 

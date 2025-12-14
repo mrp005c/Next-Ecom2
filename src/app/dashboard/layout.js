@@ -4,10 +4,9 @@ import DashNav from "./DashNav";
 import { useRouter } from "next/navigation";
 
 import { useEffect } from "react";
-import SkeletonPage from "@/components/modules/SkeletonPage";
+import SkeletonPage from "@/components/kit/SkeletonPage";
 
 export default function LoginLayout({ children }) {
-
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -22,7 +21,7 @@ export default function LoginLayout({ children }) {
   }
   if (session) {
     return (
-      <div >
+      <div>
         <DashNav />
         {children}
       </div>
