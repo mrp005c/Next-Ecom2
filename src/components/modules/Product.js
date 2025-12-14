@@ -5,13 +5,11 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { Toaster } from "../ui/sonner";
 
-
-const Product = ({ item, handleAddToCart }) => {
- 
-
+const Product = ({ item, handleAddToCart, children, showButton = true }) => {
   return (
     <>
-      <div className="flex flex-col max-w-[430px] w-[350px] bg-gray100c  p-2 box-border rounded-lg transition-all hover:shadow-md shadow-blue-300  hover:translate-y-[calc(-2px)] ">
+      <div className="flex flex-col max-w-[430px] w-[350px] bg-gray100c  p-2 box-border rounded-lg transition-all hover:shadow-lg shadow-blue500c  hover:translate-y-[calc(-2px)] ">
+        {children}
         <Link
           href={`/products/${item.productId}`}
           className="h-[250px] w-full z-10 relative cursor-pointer bg-gray200c rounded-lg"
@@ -43,7 +41,7 @@ const Product = ({ item, handleAddToCart }) => {
         >
           {item.category}
         </Link>
-        <div className="flex-around flex-wrap py-2">
+       {showButton && <div className="flex-around flex-wrap py-2">
           <Button
             disabled={!item.inStock}
             onClick={() => handleAddToCart(item)}
@@ -56,7 +54,7 @@ const Product = ({ item, handleAddToCart }) => {
           >
             Buy Now
           </Button>
-        </div>
+        </div>}
         <div className="flex-between text-sm">
           <div className="flex-center gap-2">
             <p className="p-1 rounded-md bg-gray300c">Rating:{item.rating}</p>

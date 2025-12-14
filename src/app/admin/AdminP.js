@@ -28,7 +28,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { IoAdd, IoAddCircle, IoReload } from "react-icons/io5";
-import AdProduct from "@/components/modules/AdminProduct";
 import SkeletonProduct from "@/components/modules/SkeletonProduct";
 import SkeletonPage from "@/components/modules/SkeletonPage";
 import LoadingOverlay from "@/components/modules/LoadingOverlay";
@@ -43,8 +42,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OrderItem from "@/components/modules/OrderItem";
 
 import { useFieldArray, useForm, Controller } from "react-hook-form";
-import { MdDeleteForever } from "react-icons/md";
+import { MdDelete, MdDeleteForever, MdEdit } from "react-icons/md";
 import { Edit } from "lucide-react";
+import Product from "@/components/modules/Product";
 
 const AdminPage = () => {
   const { data: session } = useSession();
@@ -1081,13 +1081,41 @@ const AdminPage = () => {
                 <div className="flex justify-center  items-stretch flex-wrap gap-3 text-foreground px-3 box-border py-2">
                   {items.map((item) => {
                     return (
-                      <AdProduct
-                        handleDelete={handleDelete}
+                      <Product
+                        showButton={false}
                         key={item.productId}
                         item={item}
-                        reset2={reset2}
-                        setOpenEdit={setOpenEdit}
-                      />
+                      >
+                        <div className="buttons flex-center justify-end gap-3 text-2xl w-full py-2 rounded-md ">
+                          <Button
+                            variant={"outline"}
+                            onClick={() => {
+                              setOpenEdit(true);
+                              reset2({
+                                id: item._id,
+                                name: item.name,
+                                image: item.image,
+                                price: item.price,
+                                rating: item.rating,
+                                category: item.category,
+                                productId: item.productId,
+                                inStock: item.inStock,
+                              });
+                            }}
+                            className={"hover:ring-1 ring-gray600c"}
+                          >
+                            <MdEdit />
+                            Edit
+                          </Button>
+                          <Button
+                            variant={"outline"}
+                            onClick={() => handleDelete(item._id, item.name)}
+                            className={" hover:ring-1 ring-gray600c"}
+                          >
+                            <MdDelete /> Delete
+                          </Button>
+                        </div>
+                      </Product>
                     );
                   })}
                 </div>
@@ -1252,10 +1280,14 @@ const AdminPage = () => {
                   <div className="p-3 space-y-3 flex-center flex-col">
                     {pendingOrders &&
                       pendingOrders.map((item) => (
-                          <OrderItem key={item._id} item={item}>
-                            <Button
-                            onClick={()=>console.log('Edit Order')} variant={'outline'}><Edit/></Button>
-                          </OrderItem>
+                        <OrderItem key={item._id} item={item}>
+                          <Button
+                            onClick={() => console.log("Edit Order")}
+                            variant={"outline"}
+                          >
+                            <Edit />
+                          </Button>
+                        </OrderItem>
                       ))}
                   </div>
                 </TabsContent>
