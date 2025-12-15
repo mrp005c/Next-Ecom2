@@ -1,7 +1,6 @@
 import { connectDB } from "@/lib/mongodb";
 import Message from "@/models/Message";
 import { NextResponse } from "next/server";
-import { sendConfirmationEmail } from "@/lib/emailutils";
 
 //Post Your Data
 export async function POST(request) {
@@ -14,12 +13,6 @@ export async function POST(request) {
   try {
     const result = await Message.insertOne(body);
 
-    // // 2️⃣ Send confirmation email
-    await sendConfirmationEmail({
-      to: email,
-      name,
-      subject,
-    });
 
     return NextResponse.json({
       success: true,
