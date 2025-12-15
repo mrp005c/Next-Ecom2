@@ -1,11 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import React from "react";
+import SkeletonPage from "./SkeletonPage";
 
 const SkeletonProduct = () => {
-  let a = "rakibismynamer";
+  let a = "rakibism";
   const array = Array.from(a);
   return (
-      <div className="flex-center flex-wrap gap-5 ">
+      <div className="flex-center flex-wrap gap-5 w-full ">
         {array.map((e, ind) => (
           <div key={ind} className="flex flex-col space-y-3 w-[350px]">
             <Skeleton className="h-[225px] w-[350px] bg-gray200c rounded-xl" />
@@ -15,6 +16,7 @@ const SkeletonProduct = () => {
             </div>
           </div>
         ))}
+        {/* <SkeletonPage/> */}
       </div>
   );
 };

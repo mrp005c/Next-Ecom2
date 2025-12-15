@@ -18,6 +18,7 @@ import { fetchCart } from "@/store/cartSlice";
 import { useSession } from "next-auth/react";
 import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import { useForm } from "react-hook-form";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Home() {
   const [email, setEmail] = useState();
@@ -295,74 +296,111 @@ export default function Home() {
       >
         <h2 className="w-fit mx-auto py-3 text-2xl font-bold">Contact Us</h2>
 
-        <div className="flex-center items-stretch flex-col md:flex-row relative ">
-          {/* left side */}{" "}
-          <div className="left flex-center h-full flex-1 min-h-[500px] w-full max-w-[550px] bg-gray200c relative p-3">
+        <div className="flex-center items-end flex-col md:flex-row relative gap-3 p-2 ">
+          {/* right side  */}
+          <div className="relative w-full flex-1 h-full min-h-[430px] box-border max-w-[700px] flex justify-start flex-col gap-4 p-3 bg-gray100c rounded-md border-2 border-gray400c">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14533.228807213362!2d88.96267738897703!3d24.405392899359143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39fc115ab462286b%3A0xe61e93f095bf7093!2sNatore%20Station%20Bypass!5e0!3m2!1sen!2sbd!4v1761743426306!5m2!1sen!2sbd"
-              className="w-full min-h-[500px] mx-auto h-full rounded-md border-2 bg-gray-200 border-gray500c"
-              loading="lazy"
+              width="100%"
+              height="100%"
+              className="absolute box-border inset-0"
+              title="map"
+              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7059.686577090391!2d88.95944600867372!3d24.406492353514384!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sbd!4v1758426032579!5m2!1sen!2sbd"
+              // style="filter: grayscale(1) contrast(1.2) opacity(0.4);"
+              style={{ filter: "grayscale(1) contrast(1.2) opacity(0.4)" }}
             ></iframe>
-            <div className=" font-bold p-3 flex flex-col absolute z-20 bottom-5 ring ring-fuchsia-400 bg-gray200c rounded-md">
-              <span>
-                <a href="tel:+09222333444">Phone : +09222333444</a>
-              </span>
-              <span>
-                <a href="mailto:admin@ne.com">Email : admin@ne.com</a>
-              </span>
+
+            <div className="relative flex flex-wrap rounded-md bg-gray100c py-6 shadow-md">
+              <div className="px-6 lg:w-1/2">
+                <h2 className="title-font text-xs font-semibold tracking-widest text-foreground">
+                  ADDRESS
+                </h2>
+                <p className="mt-1">
+                  Natore Station Bypass, Natore, Bangladesh
+                </p>
+              </div>
+              <div className="mt-4 px-6 lg:mt-0 lg:w-1/2">
+                <h2 className="title-font text-xs font-semibold tracking-widest">
+                  EMAIL
+                </h2>
+                <a href="mail-to:support@invoice.com" className="leading-relaxed text-indigo-500 dark:text-indigo-300">
+                  support@invoice.com
+                </a>
+                <h2 className="title-font mt-4 text-xs font-semibold tracking-widest text-gray-900">
+                  PHONE
+                </h2>
+                <a href="tel:1234567890" className="leading-relaxed">123-456-7890</a>
+              </div>
             </div>
           </div>
-          <div className="left w-full flex-1 h-full min-h-[500px] max-w-[700px] flex justify-start flex-col gap-4 p-3">
-            <h1 className="text-3xl font-bold text-shadow-lg text-shadow-blue-400">
-              Contact Us
-            </h1>
+          {/* left side */}{" "}
+          <div className="left w-full flex-1 h-full min-h-[430px] box-border max-w-[700px] bg-gray100c rounded-md border-2 border-gray400c flex justify-start flex-col gap-4 p-3">
             <form
               onSubmit={handleSubmit(handleSendMessage)}
-              className="flex flex-1 flex-col gap-3 bg-gray100c rounded-md border-2 border-gray400c p-3"
+              className="flex flex-1 flex-col gap-3  p-3"
             >
               <h3 className="text-lg font-semibold">Leave A Message Here!</h3>
-              <div className="grid grid-cols-1 space-y-2">
-                <Label htmlFor="name">Name </Label>
-                <Input
-                  {...register("name", {
-                    required: { value: true, message: "Name is required!" },
-                  })}
-                  placeholder="Enter Your Name"
-                  type="text"
-                  id="name"
-                  className={"rounded-md p-2  bg-gray50c"}
-                />
-                {errors.name && (
-                  <div className="text-xs text-red500c">
-                    {errors.name.message}
-                  </div>
-                )}
+              <div className="flex flex-between w-full gap-3">
+                <div className="grid grid-cols-1 space-y-2 w-full">
+                  <Label htmlFor="name">Name </Label>
+                  <Input
+                    {...register("name", {
+                      required: { value: true, message: "Name is required!" },
+                    })}
+                    placeholder="Enter Your Name"
+                    type="text"
+                    id="name"
+                    className={"rounded-md p-2  bg-gray50c"}
+                  />
+                  {errors.name && (
+                    <div className="text-xs text-red500c">
+                      {errors.name.message}
+                    </div>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 space-y-2 w-full">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    {...register("email", {
+                      required: { value: true, message: "email is required!" },
+                      pattern: {
+                        value:
+                          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                        message: "Please enter a valid email address",
+                      },
+                    })}
+                    placeholder="Enter Email"
+                    type="email"
+                    id="email"
+                    className={"rounded-md p-2  bg-gray50c"}
+                  />
+                  {errors.email && (
+                    <div className="text-xs text-red500c">
+                      {errors.email.message}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-1 space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="subject">Subject </Label>
                 <Input
-                  {...register("email", {
-                    required: { value: true, message: "email is required!" },
-                    pattern: {
-                      value:
-                        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                      message: "Please enter a valid email address",
-                    },
+                  {...register("subject", {
+                    required: { value: true, message: "Subject is required!" },
                   })}
-                  placeholder="Enter Email"
-                  type="email"
-                  id="email"
+                  placeholder="Subject"
+                  type="text"
+                  id="subject"
                   className={"rounded-md p-2  bg-gray50c"}
                 />
-                {errors.email && (
+                {errors.subject && (
                   <div className="text-xs text-red500c">
-                    {errors.email.message}
+                    {errors.subject.message}
                   </div>
                 )}
               </div>
               <div className="grid grid-cols-1 space-y-2">
                 <Label htmlFor="message">Message</Label>
-                <textarea
+                <Textarea
+                  className={"rounded-md p-2  bg-gray50c"}
                   {...register("message", {
                     required: { value: true, message: "Message is required!" },
                     minLength: {
@@ -373,7 +411,7 @@ export default function Home() {
                   })}
                   placeholder="Write a message..."
                   id="message"
-                  className={"bg-gray50c h-[100px] p-2 "}
+                  // className={"bg-gray50c h-[100px] p-2 "}
                 />
                 {errors.message && (
                   <div className="text-xs text-red500c">

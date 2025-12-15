@@ -4,8 +4,7 @@ import { NextResponse } from "next/server";
 export async function proxy(req) {
   const token = await getToken({ req });
   const path = req.nextUrl.pathname;
-
-  console.log("so going")
+  
   if (token && (path.startsWith("/login") || path.startsWith("/signup"))) {
     return NextResponse.redirect(
         new URL(`/`, req.url)

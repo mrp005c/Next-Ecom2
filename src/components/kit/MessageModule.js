@@ -11,7 +11,7 @@ const MessageModule = ({ message, handleDoneMessage, handleDeleteMessage }) => {
         message.readStatus ? "bg-gray200c hover:bg-gray100c" : "bg-gray100c hover:bg-gray50c"
       }`}
     >
-      <div className="flex gap-3 flex-wrap bg-violet300c p-1 rounded-lg">
+      <div className="flex gap-3 flex-wrap bg-violet300c p-1 rounded-sm">
         <div className="font-semibold ">
           <span className="font-bold">Name:</span> {message.name}
         </div>
@@ -19,7 +19,11 @@ const MessageModule = ({ message, handleDoneMessage, handleDeleteMessage }) => {
           <span className="font-bold">Email:</span> {message.email}
         </div>
       </div>
-      <div className="  bg-violet200c p-1 rounded-lg">
+       <div className="flex gap-3 font-bold flex-wrap bg-violet300c p-1 rounded-sm">
+          <span className="font-extrabold">Subject:</span> {message.subject}
+        
+       </div>
+      <div className="text-[12px]  bg-violet200c p-1 rounded-sm">
         <span className="font-bold">Message:</span> {message.message}
       </div>
       <div className="font-bold space-x-3 w-fit ml-auto">

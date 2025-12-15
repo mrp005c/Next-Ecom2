@@ -15,11 +15,13 @@ import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDialog } from "@/components/kit/AlertDialog";
-import { useEffect, useState } from "react";
-import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
+import { useEffect, useRef, useState } from "react";
+import { IoEye, IoEyeOff, IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import SiteLogo from "@/components/kit/SiteLogo";
+import { EyeOffIcon } from "lucide-react";
+import { RxEyeOpen } from "react-icons/rx";
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -27,6 +29,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redUrl = searchParams.get("redurl");
   const [ConfirmAlertDialog, alert] = useDialog();
+  const [passView, setPassView] = useState(false)
   const {
     register,
     handleSubmit,
@@ -62,7 +65,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (status === "authenticated") {
       if (window.opener?.location) {
-        // window.opener.location.reload();
+        window.opener.location.reload();
         window.close();
       }
       if (redUrl) {
@@ -124,15 +127,18 @@ export default function LoginPage() {
                     Forgot your password?
                   </a>
                 </div>
+                <div className="relative flex-center">
                 <Input
                   {...register("password", {
                     required: { value: true, message: "Password is required!" },
                   })}
                   id="password"
-                  type="password"
+                  type={passView ? "text": "password"}
                   placeholder="Enter Password"
                   className={`${errors.password ? "border-l-8 border-l-red-500" : ""}`}
                 />
+                <button className="absolute right-2 cursor-pointer text-lg" type="button" onClick={()=> setPassView((e)=> !e)}>{!passView ?<IoEyeOff/>: <IoEye/>}</button>
+                </div>
                 {errors.password && (
                   <div className="text-red500c text-xs ">
                     {errors.password.message}
