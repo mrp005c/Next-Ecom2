@@ -21,11 +21,20 @@ import {
 import Image from "next/image";
 import LoadingOverlay from "@/components/kit/LoadingOverlay";
 import { useForm } from "react-hook-form";
+import { IoEye, IoEyeOff } from "react-icons/io5";
+
+import { ChevronDown } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const DashNav = () => {
   const { data: session, status, update } = useSession();
   const [openD, setOpenD] = useState(false);
   const [isLoading, setIsloading] = useState(false);
+  const [passView, setPassView] = useState({ pass: false, conf: false });
   const router = useRouter();
   // form handle
   const {
@@ -206,52 +215,104 @@ const DashNav = () => {
                   </div>
                 )}
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center font-bold">
-                  <h4 className={"text-sm rounded-md bg-gray100c px-3 py-1"}>
-                    Change Password
-                  </h4>
+              <Collapsible>
+                <div className=" border border-gray300c rounded-md w-full font-bold">
+                  <CollapsibleTrigger
+                    className={
+                      "group text-sm w-full bg-violet100c flex flex-between rounded-md px-3 py-1"
+                    }
+                  >
+                    <span>Change Password</span>
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className={"p-2"}>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="password">Password</Label>
+                      </div>
+                      <div className="relative flex-center">
+                        <Input
+                          {...register("password", {
+                            required: {
+                              value: true,
+                              message: "Password is required!",
+                            },
+                            minLength: {
+                              value: 6,
+                              message: "At least 6 character!",
+                            },
+                            maxLength: {
+                              value: 10,
+                              message: "Maximum 10 character!",
+                            },
+                          })}
+                          id="password"
+                          placeholder="Enter Password"
+                          type={passView.pass ? "text" : "password"}
+                        />
+                        <button
+                          className="absolute right-2 cursor-pointer text-lg"
+                          type="button"
+                          onClick={() =>
+                            setPassView({ ...passView, pass: !passView.pass })
+                          }
+                        >
+                          {!passView.pass ? <IoEyeOff /> : <IoEye />}
+                        </button>
+                      </div>
+                      {errors.password && (
+                        <div className="text-red500c text-xs ">
+                          {errors.password.message}
+                        </div>
+                      )}
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="cpassword">Confirm Password</Label>
+                      </div>
+                      <div className="relative flex-center">
+                        <Input
+                          id="cpassword"
+                          {...register("cpassword", {
+                            required: {
+                              value: true,
+                              message: "Confirm password is required!",
+                            },
+                            minLength: {
+                              value: 6,
+                              message: "At least 6 character!",
+                            },
+                            maxLength: {
+                              value: 10,
+                              message: "Maximum 10 character!",
+                            },
+                            validate: (value) =>
+                              value === getValues("password") ||
+                              "Password do not match!",
+                          })}
+                          placeholder="Enter Password Again"
+                          type={passView.conf ? "text" : "password"}
+                        />
+                        <button
+                          className="absolute right-2 cursor-pointer text-lg"
+                          type="button"
+                          onClick={() =>
+                            setPassView({ ...passView, conf: !passView.conf })
+                          }
+                        >
+                          {!passView.conf ? <IoEyeOff /> : <IoEye />}
+                        </button>
+                      </div>
+
+                      {errors.cpassword && (
+                        <div className="text-red500c text-xs ">
+                          {errors.cpassword.message}
+                        </div>
+                      )}
+                    </div>
+                  </CollapsibleContent>
                 </div>
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  {...register("password", {
-                    minLength: { value: 6, message: "At least 6 character!" },
-                    maxLength: { value: 10, message: "Maximum 10 character!" },
-                  })}
-                  id="password"
-                  type="password"
-                  placeholder="Enter Password"
-                />
-                {errors.password && (
-                  <div className="text-red500c text-xs ">
-                    {errors.password.message}
-                  </div>
-                )}
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="cpassword">Confirm Password</Label>
-                </div>
-                <Input
-                  id="cpassword"
-                  type="password"
-                  {...register("cpassword", {
-                    minLength: { value: 6, message: "At least 6 character!" },
-                    maxLength: { value: 10, message: "Maximum 10 character!" },
-                    validate: (value) =>
-                      value === getValues("password") ||
-                      "Password do not match!",
-                  })}
-                  placeholder="Enter Password Again"
-                />
-                {errors.cpassword && (
-                  <div className="text-red500c text-xs ">
-                    {errors.cpassword.message}
-                  </div>
-                )}
-              </div>
+              </Collapsible>
             </div>
             <DialogFooter>
               <div className="mt-3 space-x-3">

@@ -1,11 +1,25 @@
-import React from 'react'
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
 
 const SiteLogo = () => {
   return (
-    <div className='px-2 py-2 rounded-sm bg-gray50c'>
-      <h1 className='text-2xl font-bold rounded-md italic text-shadow-md text-shadow-blue-500 text-white'>Next Ecom</h1>
-    </div>
-  )
-}
+    <Link href={"/"} className="p-3 w-fit mx-auto rounded-bl-4xl rounded-xs rounded-tr-4xl flex-center bg-violet200c">
+      <span className="flex-center relative h-12 w-12">
+        <Image
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="eager"
+          src="/favicon.ico"
+          alt="sitelogo"
+          className="w-12 overflow-hidden object-contain object-left"
+        />
+      </span>
+      <span className="italic font-semibold text-xl text-background text-shadow-md text-shadow-foreground">Next Ecom</span>
 
-export default SiteLogo
+      
+    </Link>
+  );
+};
+
+export default SiteLogo;

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
+import { IoEye, IoEyeOff, IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { useDialog } from "@/components/kit/AlertDialog";
 import Link from "next/link";
 
@@ -27,6 +27,7 @@ export default function SignInPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [ConfirmAlertDialog, alert] = useDialog();
+  const [passView, setPassView] = useState({ pass: false, conf: false });
   // form handle
   const {
     register,
@@ -75,7 +76,7 @@ export default function SignInPage() {
       <LoadingOverlay show={isLoading} message={"Singing In... Wait!"} />
       {ConfirmAlertDialog}
       <Card className="w-full max-w-md bg-gray100c">
-        <SiteLogo/>
+        <SiteLogo />
         <CardHeader>
           <CardTitle>Sign Up your account</CardTitle>
           <CardDescription>
@@ -180,16 +181,33 @@ export default function SignInPage() {
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input
-                  {...register("password", {
-                    required: { value: true, message: "Password is required!" },
-                    minLength: { value: 6, message: "At least 6 character!" },
-                    maxLength: { value: 10, message: "Maximum 10 character!" },
-                  })}
-                  id="password"
-                  type="password"
-                  placeholder="Enter Password"
-                />
+                <div className="relative flex-center">
+                  <Input
+                    {...register("password", {
+                      required: {
+                        value: true,
+                        message: "Password is required!",
+                      },
+                      minLength: { value: 6, message: "At least 6 character!" },
+                      maxLength: {
+                        value: 10,
+                        message: "Maximum 10 character!",
+                      },
+                    })}
+                    id="password"
+                    placeholder="Enter Password"
+                    type={passView.pass ? "text" : "password"}
+                  />
+                  <button
+                    className="absolute right-2 cursor-pointer text-lg"
+                    type="button"
+                    onClick={() =>
+                      setPassView({ ...passView, pass: !passView.pass })
+                    }
+                  >
+                    {!passView.pass ? <IoEyeOff /> : <IoEye />}
+                  </button>
+                </div>
                 {errors.password && (
                   <div className="text-red500c text-xs ">
                     {errors.password.message}
@@ -200,22 +218,37 @@ export default function SignInPage() {
                 <div className="flex items-center">
                   <Label htmlFor="cpassword">Confirm Password</Label>
                 </div>
-                <Input
-                  id="cpassword"
-                  type="password"
-                  {...register("cpassword", {
-                    required: {
-                      value: true,
-                      message: "Confirm password is required!",
-                    },
-                    minLength: { value: 6, message: "At least 6 character!" },
-                    maxLength: { value: 10, message: "Maximum 10 character!" },
-                    validate: (value) =>
-                      value === getValues("password") ||
-                      "Password do not match!",
-                  })}
-                  placeholder="Enter Password Again"
-                />
+                <div className="relative flex-center">
+                  <Input
+                    id="cpassword"
+                    {...register("cpassword", {
+                      required: {
+                        value: true,
+                        message: "Confirm password is required!",
+                      },
+                      minLength: { value: 6, message: "At least 6 character!" },
+                      maxLength: {
+                        value: 10,
+                        message: "Maximum 10 character!",
+                      },
+                      validate: (value) =>
+                        value === getValues("password") ||
+                        "Password do not match!",
+                    })}
+                    placeholder="Enter Password Again"
+                    type={passView.conf ? "text" : "password"}
+                  />
+                  <button
+                    className="absolute right-2 cursor-pointer text-lg"
+                    type="button"
+                    onClick={() =>
+                      setPassView({ ...passView, conf: !passView.conf })
+                    }
+                  >
+                    {!passView.conf ? <IoEyeOff /> : <IoEye />}
+                  </button>
+                </div>
+
                 {errors.cpassword && (
                   <div className="text-red500c text-xs ">
                     {errors.cpassword.message}
